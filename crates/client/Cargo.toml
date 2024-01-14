@@ -1,0 +1,15 @@
+[package]
+name = "rust-study-client"
+version.workspace = true
+authors.workspace = true
+description.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+reqwest = { workspace = true }
+progenitor = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
+uuid = { workspace = true, features = [ "v4", "serde" ] }
+
+rust-study-shared = { path = "../shared" }

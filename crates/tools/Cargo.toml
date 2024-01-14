@@ -1,0 +1,18 @@
+[package]
+name = "rust-study-tools"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow= { workspace = true }
+clap = { workspace = true, features = [ "derive" ] }
+futures = { workspace = true }
+prettyplease = "0.2.16"
+progenitor = { workspace = true }
+reqwest = { workspace = true, features = [ "json" ] }
+serde = { workspace = true, features = ["derive"] }
+serde_yaml = { workspace = true }
+syn = { workspace = true }
+uuid = { workspace = true, features = [ "v4", "serde" ] }
+
+rust-study-shared = { path = "../shared" }

@@ -1,0 +1,18 @@
+[package]
+name = "rust-study-front"
+version.workspace = true
+authors.workspace = true
+description.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+yew = { workspace = true, features = ["csr"] }
+reqwest = { workspace = true, features = [ "json" ] }
+wasm-bindgen-futures =  { workspace = true }
+wasm-bindgen = { workspace = true }
+log = "0.4.6"
+wasm-logger = "0.2.0"
+
+rust-study-shared = { path = "../shared" }
+rust-study-client = { path = "../client" }

@@ -1,0 +1,37 @@
+openapi: 3.0.3
+info:
+  title: rust-study-server
+  description: Rust study web application
+  contact:
+    name: rust4fun
+  license:
+    name: ''
+  version: 0.1.0
+paths:
+  /api/v1/hello:
+    get:
+      tags:
+      - hello
+      operationId: comment
+      responses:
+        '200':
+          description: List all todos successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+components:
+  schemas:
+    Article:
+      type: object
+      required:
+      - id
+      - title
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+tags:
+- name: hello

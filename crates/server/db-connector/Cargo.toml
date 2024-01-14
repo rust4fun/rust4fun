@@ -1,0 +1,8 @@
+[package]
+name = "rust-study-db-connector"
+version.workspace = true
+authors.workspace = true
+description.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+

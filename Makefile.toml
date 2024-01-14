@@ -1,0 +1,44 @@
+[env]
+workspace_path = { script = ["pwd"] }
+spec_path = "doc/specifications/api_v1.yml"
+codegen_path = "crates/client/src/codegen.rs"
+
+[config]
+default_to_workspace = false
+
+# common
+[tasks.format]
+command = "cargo"
+args = ["fmt", "--", "--emit=files"]
+
+[tasks.clippy]
+command = "cargo"
+args = ["clippy"]
+
+[tasks.build]
+command = "cargo"
+args = ["build", "--release"]
+
+[tasks.my-flow]
+dependencies = [
+    "format",
+    "clippy",
+]
+
+# tools
+[tasks.gen-api]
+command = "cargo"
+args = ["run", "--bin", "generate_api"]
+
+[tasks.tools]
+command = "cargo"
+args = ["run", "--release", "--package", "rust-study-tools", "${@}"]
+
+# frontend
+[tasks.build-yew]
+script = '''
+cd crates/front
+trunk build --release --dist $workspace_path/dist
+'''
+
+
