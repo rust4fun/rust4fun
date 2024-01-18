@@ -1,6 +1,6 @@
-pub use progenitor::progenitor_client::{ByteStream, Error, ResponseValue};
 #[allow(unused_imports)]
 use progenitor::progenitor_client::{encode_path, RequestBuilderExt};
+pub use progenitor::progenitor_client::{ByteStream, Error, ResponseValue};
 #[allow(unused_imports)]
 use reqwest::header::{HeaderMap, HeaderValue};
 pub mod types {
@@ -13,21 +13,21 @@ pub mod types {
     ///
     /// ```json
     /**{
-  "type": "object",
-  "required": [
-    "id",
-    "title"
-  ],
-  "properties": {
-    "id": {
-      "type": "string",
-      "format": "uuid"
-    },
-    "title": {
-      "type": "string"
-    }
-  }
-}*/
+      "type": "object",
+      "required": [
+        "id",
+        "title"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid"
+        },
+        "title": {
+          "type": "string"
+        }
+      }
+    }*/
     /// ```
     /// </details>
     #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -61,7 +61,9 @@ impl Client {
         #[cfg(not(target_arch = "wasm32"))]
         let client = {
             let dur = std::time::Duration::from_secs(15);
-            reqwest::ClientBuilder::new().connect_timeout(dur).timeout(dur)
+            reqwest::ClientBuilder::new()
+                .connect_timeout(dur)
+                .timeout(dur)
         };
         #[cfg(target_arch = "wasm32")]
         let client = reqwest::ClientBuilder::new();
@@ -98,13 +100,11 @@ impl Client {
 impl Client {
     /**Sends a `GET` request to `/api/v1/hello`
 
-*/
-    pub async fn comment<'a>(
-        &'a self,
-    ) -> Result<ResponseValue<types::Article>, Error<()>> {
+    */
+    pub async fn comment<'a>(&'a self) -> Result<ResponseValue<types::Article>, Error<()>> {
         let url = format!("{}/api/v1/hello", self.baseurl,);
         let request = self
-            .client
+            .client()
             .get(url)
             .header(
                 reqwest::header::ACCEPT,

@@ -1,5 +1,5 @@
-use rust_study_shared as shared;
 use rust_study_client as client;
+use rust_study_shared as shared;
 
 use client::types;
 use client::Client;
@@ -19,10 +19,7 @@ fn app() -> Html {
 
     let art_clone = art.clone();
     spawn_local(async move {
-        let body = client
-            .comment()
-            .await
-            .unwrap();
+        let body = client.comment().await.unwrap();
 
         log::info!("{body:?}");
 

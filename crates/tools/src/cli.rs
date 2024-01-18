@@ -1,9 +1,9 @@
 mod generate_client;
 mod generate_specs;
 
-use generate_client::GenerateClient;
 use anyhow::Result;
-use clap::{Subcommand, Parser};
+use clap::{Parser, Subcommand};
+use generate_client::GenerateClient;
 
 #[derive(Debug, Parser)]
 #[command(author, version, about, long_about = None)]
@@ -21,7 +21,7 @@ pub enum Subcommands {
 impl Cli {
     pub fn run(&self) -> Result<()> {
         match &self.command {
-            Subcommands::GenerateClient(args) => args.run()?
+            Subcommands::GenerateClient(args) => args.run()?,
         }
 
         Ok(())
