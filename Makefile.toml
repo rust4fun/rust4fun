@@ -41,11 +41,11 @@ dependencies = [ "install-trunk", "install-wasm" ]
 
 [tasks.install-trunk]
 command = "cargo"
-args = [ "install", "--locked", "trunk" ]
+args = [ "install", "trunk" ]
 
 [tasks.install-wasm]
 command = "cargo"
-args = [ "install", "--locked", "wasm-bindgen-cli" ]
+args = [ "install", "wasm-bindgen-cli" ]
 
 # -- backend
 [tasks.run]
