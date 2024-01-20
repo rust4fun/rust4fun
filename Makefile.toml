@@ -36,7 +36,7 @@ args = ["run", "--release", "--package", "rust-study-tools", "${@}"]
 # -- frontend
 [tasks.build-yew]
 command = "trunk"
-args = [ "build", "./crates/front/index.html", "--release", "--dist", "${workspace_path}/dist" ]
+args = [ "build", "./crates/front/index.html", "--release", "--dist", "${WORKSPACE_PATH}/dist" ]
 dependencies = [ "install-trunk", "install-wasm" ]
 
 [tasks.install-trunk]
