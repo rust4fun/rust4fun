@@ -8,14 +8,40 @@ info:
     name: ''
   version: 0.1.0
 paths:
-  /api/v1/hello:
-    get:
+  /api/v1/articles:
+    post:
       tags:
-      - hello
-      operationId: comment
+      - articles
+      operationId: create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequestBody'
+        required: true
       responses:
         '200':
-          description: List all todos successfully
+          description: create article record
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Article'
+  /api/v1/articles/{id}:
+    get:
+      tags:
+      - articles
+      operationId: get_item
+      parameters:
+      - name: id
+        in: path
+        description: article id
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        '200':
+          description: get article record
           content:
             application/json:
               schema:
@@ -26,12 +52,28 @@ components:
       type: object
       required:
       - id
-      - title
+      - url
+      - image_url
       properties:
+        description:
+          type: string
+          nullable: true
         id:
           type: string
           format: uuid
+        image_url:
+          type: string
         title:
           type: string
+          nullable: true
+        url:
+          type: string
+    RequestBody:
+      type: object
+      required:
+      - url
+      properties:
+        url:
+          type: string
 tags:
-- name: hello
+- name: api

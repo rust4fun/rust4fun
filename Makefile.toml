@@ -1,12 +1,15 @@
 [env]
-workspace_path = { script = ["pwd"] }
-spec_path = "doc/specifications/api_v1.yml"
-codegen_path = "crates/client/src/codegen.rs"
+WORKSPACE_PATH = { script = ["pwd"] }
+SPEC_PATH = "doc/specifications/api_v1.yml"
+CODEGEN_PATH = "crates/client/src/codegen.rs"
+end_point_port = "8080"
+DATABASE_URL = "postgres://postgres:postgres@localhost:21735/postgres"
+API_URL = "http://localhost:8080"
 
 [config]
 default_to_workspace = false
 
-# common
+# -- common
 [tasks.format]
 command = "cargo"
 args = ["fmt", "--", "--emit=files"]
@@ -25,20 +28,35 @@ dependencies = [
     "clippy",
 ]
 
-# tools
-[tasks.gen-api]
-command = "cargo"
-args = ["run", "--bin", "generate_api"]
-
+# -- tools
 [tasks.tools]
 command = "cargo"
 args = ["run", "--release", "--package", "rust-study-tools", "${@}"]
 
-# frontend
+# -- frontend
 [tasks.build-yew]
-script = '''
-cd crates/front
-trunk build --release --dist $workspace_path/dist
-'''
+command = "trunk"
+args = [ "build", "./crates/front/index.html", "--release", "--dist", "${workspace_path}/dist" ]
+dependencies = [ "install-trunk", "install-wasm" ]
 
+[tasks.install-trunk]
+command = "cargo"
+args = [ "install", "--locked", "trunk" ]
 
+[tasks.install-wasm]
+command = "cargo"
+args = [ "install", "--locked", "wasm-bindgen-cli" ]
+
+# -- backend
+[tasks.run]
+command = "cargo"
+args = [ "shuttle", "run", "--port", "${end_point_port}" ]
+
+[tasks.sqlx]
+command = "sqlx"
+args = [ "${@}" ]
+dependencies = [ "install-sqlx-cli" ]
+
+[tasks.install-sqlx-cli]
+command = "cargo"
+args = [ "install", "sqlx-cli", "--no-default-features", "--features", "native-tls,postgres" ]

@@ -7,3 +7,4 @@ edition = "2021"
 serde = { workspace = true }
 uuid = { workspace = true, features = [ "v4", "serde" ] }
 utoipa = { workspace = true }
+derive-new = { workspace = true }

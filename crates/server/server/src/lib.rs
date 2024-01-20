@@ -1,21 +1,30 @@
+use rust_study_db_connector as db;
 use rust_study_shared as shared;
 
 pub mod router;
 
-use axum::{response::IntoResponse, Json};
-use shared::Article;
+use db::DbConnector;
+use serde::{Deserialize, Serialize};
+use sqlx::PgPool;
+use std::sync::Arc;
 
-#[utoipa::path(
-    get,
-    path = "/hello",
-    context_path = "/api/v1",
-    responses(
-        (status = 200, description = "List all todos successfully", body = Article)
-    ),
-    tag = "hello",
-)]
-pub async fn comment() -> impl IntoResponse {
-    let article = Article::new("rust の 勉強会".to_string());
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
+pub struct Article(shared::Article);
 
-    Json(article)
+pub struct State {
+    db: Arc<DbConnector>,
+}
+
+impl State {
+    pub async fn init(pool: PgPool) -> Self {
+        let db = Arc::new(DbConnector::new(pool));
+
+        db.migration().await;
+
+        Self { db }
+    }
+
+    pub fn db(&self) -> Arc<DbConnector> {
+        self.db.clone()
+    }
 }

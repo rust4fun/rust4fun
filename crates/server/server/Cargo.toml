@@ -8,19 +8,23 @@ rust-version.workspace = true
 
 [dependencies]
 axum = { workspace = true }
+chrono = { workspace = true, features = [ "serde" ] }
 shuttle-axum = { workspace = true }
 shuttle-runtime = { workspace = true }
+shuttle-shared-db = { workspace = true }
 tokio = { workspace = true }
 tower-http = { workspace = true, features = [ "trace", "fs", "cors" ] }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true, default-features = false }
-sqlx = { workspace = true, features = [ "runtime-tokio" ] }
+sqlx = { workspace = true, features = [ "runtime-tokio", "postgres" ] }
 serde = { workspace = true }
 uuid = { workspace = true, features = [ "v4" ] }
 utoipa = { workspace = true, features = [ "yaml", "uuid" ] }
+webpage = { workspace = true }
 
 rust-study-shared = { path = "../../shared" }
+rust-study-db-connector = { path = "../db-connector" }
 
-[[bin]]
-name = "generate_api"
-path = "bin/generate_api.rs"
+[features]
+default = []
+openapi = []

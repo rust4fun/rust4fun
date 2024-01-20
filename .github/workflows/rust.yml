@@ -1,4 +1,4 @@
-name: Shuttle Deploy
+name: Rust check
 
 on:
   push:
