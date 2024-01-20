@@ -1,0 +1,22 @@
+name: Shuttle Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build frontend
+        uses: jetli/trunk-action@v0.4.0
+        with:
+          version: 'latest'
+      - run: cargo make build-yew
+  
+      - name: Deploy shuttle
+        uses: shuttle-hq/deploy-action@main
+        with:
+          deploy-key: ${{ secrets.SHUTTLE_API_KEY }}

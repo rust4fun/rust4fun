@@ -6,3 +6,9 @@ description.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 
+[dependencies]
+chrono = { workspace = true }
+derive-new = { workspace = true }
+sqlx = { workspace = true, features = [ "runtime-tokio", "postgres", "uuid", "chrono" ] }
+uuid = { workspace = true, features = [ "v4" ] }
+tracing = { workspace = true }

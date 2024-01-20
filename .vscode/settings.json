@@ -1,5 +1,9 @@
 {
     "rust-analyzer.linkedProjects": [
         "./Cargo.toml"
-    ]
+    ],
+
+    "rust-analyzer.server.extraEnv": {
+        "DATABASE_URL": "postgres://postgres:postgres@localhost:21735/postgres"
+    }
 }

@@ -8,6 +8,7 @@ rust-version.workspace = true
 
 [dependencies]
 yew = { workspace = true, features = ["csr"] }
+yew-bootstrap = { workspace = true }
 reqwest = { workspace = true, features = [ "json" ] }
 wasm-bindgen-futures =  { workspace = true }
 wasm-bindgen = { workspace = true }

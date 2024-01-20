@@ -1,6 +1,8 @@
 # Rust 勉強サイトの実装コード
 このリポジトリは、 Rust 勉強用のサイトの実装コードです。
 
+まだまだあらあら実装コードなので、ご容赦ください。
+
 # workspace 構成
 
 ```txt
@@ -31,11 +33,11 @@ workspace
 # 開発環境
 - 言語 - Rust (v1.75.0 .. 常に最新を維持する予定)
 - CI/CD - github
-- Deploy - shuttle
-- 認証 - Auth0 (予定)
+- Deploy - [shuttle](https://www.shuttle.rs/)
+- 認証 - [Auth0](https://auth0.com/jp) (予定、直近は自前で用意)
 
 # クイックスタート
-**先に勉強会の主のコラボレーターの登録をしてもらう必要があります。**
+**先に勉強会の organizations に招待してもらう必要があります。**
 
 ## Rust の開発環境を整える
 公式サイトより

@@ -2,4 +2,4 @@
 pub mod codegen;
 
 pub use codegen::types;
-pub use codegen::Client;
+pub use codegen::{Client, ClientArticlesExt};

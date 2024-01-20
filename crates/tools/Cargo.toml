@@ -7,12 +7,17 @@ edition = "2021"
 anyhow= { workspace = true }
 clap = { workspace = true, features = [ "derive" ] }
 futures = { workspace = true }
-prettyplease = "0.2.16"
+prettyplease = { workspace = true }
 progenitor = { workspace = true }
 reqwest = { workspace = true, features = [ "json" ] }
 serde = { workspace = true, features = ["derive"] }
 serde_yaml = { workspace = true }
+serde_json = { workspace = true }
 syn = { workspace = true }
 uuid = { workspace = true, features = [ "v4", "serde" ] }
+utoipa = { workspace = true, features = [ "yaml", "uuid", "debug" ] }
+tokio = { workspace = true }
 
 rust-study-shared = { path = "../shared" }
+rust-study-client = { path = "../client" }
+rust-study-server = { path = "../server/server", features = [ "openapi" ]}

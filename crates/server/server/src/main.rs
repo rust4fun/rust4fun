@@ -1,6 +1,10 @@
 use rust_study_server as server;
 
-use axum::{extract::Request, response::Response, routing::get, Router};
+use axum::Extension;
+use axum::{extract::Request, response::Response, Router};
+use server::State;
+use sqlx::PgPool;
+use std::sync::Arc;
 use std::time::Duration;
 use tower_http::cors::{Any, CorsLayer};
 use tower_http::trace::TraceLayer;
@@ -9,9 +13,12 @@ use tracing::Span;
 use uuid::Uuid;
 
 #[shuttle_runtime::main]
-async fn main() -> shuttle_axum::ShuttleAxum {
+async fn axum(#[shuttle_shared_db::Postgres] pool: PgPool) -> shuttle_axum::ShuttleAxum {
+    let state = Arc::new(State::init(pool).await);
+
     let api = Router::new()
-        .route("/hello", get(server::comment))
+        .nest("/articles", server::router::articles::router())
+        .layer(Extension(state))
         .layer(
             CorsLayer::new()
                 .allow_origin(Any)
@@ -30,11 +37,11 @@ async fn main() -> shuttle_axum::ShuttleAxum {
                 })
                 .on_request(|req: &Request<_>, _span: &Span| {
                     tracing::info!("[Request Start]");
-                    tracing::debug!("request: {req:?}");
+                    tracing::info!("request: {req:?}");
                 })
                 .on_response(|res: &Response<_>, _latency: Duration, _span: &Span| {
                     tracing::info!("[Request End]");
-                    tracing::debug!("response: {res:?}");
+                    tracing::info!("response: {res:?}");
                 }),
         );
 

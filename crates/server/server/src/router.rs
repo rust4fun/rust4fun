@@ -1,17 +1,22 @@
 use rust_study_shared::Article;
 
+pub mod articles;
 pub mod static_file;
 
+/// opanapi 自動生成用のコード
 use utoipa::OpenApi;
 
+#[cfg(feature = "openapi")]
 #[derive(OpenApi)]
 #[openapi(
     paths(
-        crate::comment
+        articles::get_item,
+        articles::create,
     ),
     components(schemas(
-        Article
+        Article,
+        articles::RequestBody
     )),
-    tags((name = "hello"))
+    tags((name = "api"))
 )]
 pub struct ApiDoc;
