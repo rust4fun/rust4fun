@@ -12,12 +12,12 @@ chrono = { workspace = true, features = [ "serde" ] }
 shuttle-axum = { workspace = true }
 shuttle-runtime = { workspace = true }
 shuttle-shared-db = { workspace = true }
+sqlx = { workspace = true, default-features = false, features = [ "runtime-tokio", "postgres" ] }
+serde = { workspace = true }
 tokio = { workspace = true }
 tower-http = { workspace = true, features = [ "trace", "fs", "cors" ] }
 tracing = { workspace = true }
 tracing-subscriber = { workspace = true, default-features = false }
-sqlx = { workspace = true, default-features = false, features = [ "runtime-tokio", "postgres" ] }
-serde = { workspace = true }
 uuid = { workspace = true, features = [ "v4" ] }
 utoipa = { workspace = true, features = [ "yaml", "uuid" ] }
 webpage = { workspace = true }

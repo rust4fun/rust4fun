@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+derive-new = { workspace = true }
 serde = { workspace = true }
 uuid = { workspace = true, features = [ "v4", "serde" ] }
 utoipa = { workspace = true }
-derive-new = { workspace = true }

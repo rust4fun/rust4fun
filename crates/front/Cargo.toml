@@ -7,13 +7,13 @@ edition.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-yew = { workspace = true, features = ["csr"] }
-yew-bootstrap = { workspace = true }
+log = { workspace = true }
 reqwest = { workspace = true, features = [ "json" ] }
 wasm-bindgen-futures =  { workspace = true }
 wasm-bindgen = { workspace = true }
-log = "0.4.6"
-wasm-logger = "0.2.0"
+wasm-logger = { workspace = true }
+yew = { workspace = true, features = ["csr"] }
+yew-bootstrap = { workspace = true }
 
 rust-study-shared = { path = "../shared" }
 rust-study-client = { path = "../client" }

@@ -12,6 +12,9 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
+    - name: Add build target
+      run: rustup target add wasm32-unknown-unknown
+
     - name: Install cargo-make
       uses: baptiste0928/cargo-install@v2
       with:
