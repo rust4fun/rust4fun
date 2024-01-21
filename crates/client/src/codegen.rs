@@ -286,6 +286,14 @@ impl Client {
     }
 }
 pub trait ClientArticlesExt {
+    /**Sends a `GET` request to `/api/v1/articles`
+
+    ```ignore
+    let response = client.list()
+        .send()
+        .await;
+    ```*/
+    fn list(&self) -> builder::List;
     /**Sends a `POST` request to `/api/v1/articles`
 
     ```ignore
@@ -308,6 +316,9 @@ pub trait ClientArticlesExt {
     fn get_item(&self) -> builder::GetItem;
 }
 impl ClientArticlesExt for Client {
+    fn list(&self) -> builder::List {
+        builder::List::new(self)
+    }
     fn create(&self) -> builder::Create {
         builder::Create::new(self)
     }
@@ -321,6 +332,37 @@ pub mod builder {
     use super::{
         encode_path, ByteStream, Error, HeaderMap, HeaderValue, RequestBuilderExt, ResponseValue,
     };
+    /**Builder for [`ClientArticlesExt::list`]
+
+    [`ClientArticlesExt::list`]: super::ClientArticlesExt::list*/
+    #[derive(Debug, Clone)]
+    pub struct List<'a> {
+        client: &'a super::Client,
+    }
+    impl<'a> List<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self { client: client }
+        }
+        ///Sends a `GET` request to `/api/v1/articles`
+        pub async fn send(self) -> Result<ResponseValue<Vec<types::Article>>, Error<()>> {
+            let Self { client } = self;
+            let url = format!("{}/api/v1/articles", client.baseurl,);
+            let request = client
+                .client
+                .get(url)
+                .header(
+                    reqwest::header::ACCEPT,
+                    reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .build()?;
+            let result = client.client.execute(request).await;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response(response).await,
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
     /**Builder for [`ClientArticlesExt::create`]
 
     [`ClientArticlesExt::create`]: super::ClientArticlesExt::create*/

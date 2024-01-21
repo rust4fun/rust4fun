@@ -5,7 +5,7 @@ pub mod articles;
 pub mod static_file;
 
 /// opanapi 自動生成用のコード
-/// #[cfg(feature = "openapi")]
+#[cfg(feature = "openapi")]
 use utoipa::OpenApi;
 
 #[cfg(feature = "openapi")]
@@ -14,6 +14,7 @@ use utoipa::OpenApi;
     paths(
         articles::get_item,
         articles::create,
+        articles::list,
     ),
     components(schemas(
         Article,

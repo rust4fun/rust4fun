@@ -2,4 +2,3 @@
 .shuttle-storage
 Secrets*.toml
 .env
-/dist

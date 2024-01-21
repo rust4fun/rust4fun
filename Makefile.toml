@@ -12,11 +12,11 @@ default_to_workspace = false
 # -- common
 [tasks.format]
 command = "cargo"
-args = ["fmt", "--", "--emit=files"]
+args = ["fmt", "--", "--emit=files", "${@}" ]
 
 [tasks.clippy]
 command = "cargo"
-args = ["clippy"]
+args = ["clippy", "${@}" ]
 
 [tasks.build]
 command = "cargo"

@@ -72,4 +72,20 @@ impl ArticleRepository {
 
         article.unwrap()
     }
+
+    pub async fn list(&self) -> Vec<ArticleEntity> {
+        let pool = self.0.get_pool();
+
+        let article = sqlx::query_as!(
+            ArticleEntity,
+            r#"
+            SELECT *
+            FROM articles
+        "#,
+        )
+        .fetch_all(&pool)
+        .await;
+
+        article.unwrap()
+    }
 }

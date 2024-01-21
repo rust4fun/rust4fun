@@ -9,13 +9,13 @@ use yew_bootstrap::util::Color;
 
 #[function_component(Initial)]
 pub fn initial() -> Html {
-    let art = use_state(|| None::<types::Article>);
+    let art = use_state(Vec::new);
 
     let art_clone = art.clone();
     let on_click = Callback::from(move |_| spawn_local(on_clicks(art_clone.clone())));
 
-    let title = art.as_ref().and_then(|x| x.title.clone());
-    let description = art.as_ref().and_then(|x| x.description.clone());
+    let title = art.first().and_then(|x| x.title.clone());
+    let description = art.first().and_then(|x| x.description.clone());
     html! {
             <section>
                 <header class="header">
@@ -31,10 +31,10 @@ pub fn initial() -> Html {
                             <ModalBody>
                                 if title.is_some() {
                                     <Card class="width: 18rem;">
-                                        <CardHeader>{"Card Head"}</CardHeader>
+                                        <CardHeader>{"Card です"}</CardHeader>
                                         <CardBody>{{ title.unwrap() }}</CardBody>
                                         <CardBody>{{ description.unwrap() }}</CardBody>
-                                        <CardFooter>{"Card Foot"}</CardFooter>
+                                        <CardFooter>{"最後"}</CardFooter>
                                     </Card>
                                 }
                             </ModalBody>
@@ -51,14 +51,14 @@ pub fn initial() -> Html {
     }
 }
 
-async fn on_clicks(state: UseStateHandle<Option<types::Article>>) {
+async fn on_clicks(state: UseStateHandle<Vec<types::Article>>) {
     let req = Requester::new();
 
-    let body = types::RequestBody::builder()
-        .url("https://qiita.com/noshishi/items/2821c01d590bf9c96038".to_string());
-    let body = req.client().create().body(body).send().await.unwrap();
+    // let body = types::RequestBody::builder()
+    //     .url("https://qiita.com/noshishi/items/2821c01d590bf9c96038".to_string());
+    let body = req.client().list().send().await.unwrap();
 
     log::info!("{body:?}");
 
-    state.set(Some(body.into_inner()));
+    state.set(body.into_inner());
 }

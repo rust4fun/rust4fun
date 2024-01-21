@@ -18,7 +18,7 @@ pub struct Article(shared::Article);
 
 pub fn router() -> Router {
     Router::new()
-        .route("/", post(create))
+        .route("/", post(create).get(list))
         .route("/:id", get(get_item))
 }
 
@@ -87,6 +87,22 @@ pub async fn get_item(state: Extension<Arc<State>>, Path(id): Path<Uuid>) -> Jso
     let article = repo.find_by_id(id.into()).await;
 
     Json(article.into())
+}
+
+#[utoipa::path(
+    get,
+    path = "/articles",
+    context_path = "/api/v1",
+    responses(
+        (status = 200, description = "get article records", body = Vec<Article>)
+    ),
+    tag = "articles",
+)]
+pub async fn list(state: Extension<Arc<State>>) -> Json<Vec<Article>> {
+    let repo = db::ArticleRepository::new(state.db());
+    let article = repo.list().await;
+
+    Json(article.into_iter().map(|x| x.into()).collect())
 }
 
 impl From<db::ArticleEntity> for Article {
