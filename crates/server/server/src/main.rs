@@ -18,6 +18,7 @@ async fn axum(#[shuttle_shared_db::Postgres] pool: PgPool) -> shuttle_axum::Shut
 
     let api = Router::new()
         .nest("/articles", server::router::articles::router())
+        .nest("/hello", server::router::hello::router())
         .layer(Extension(state))
         .layer(
             CorsLayer::new()
