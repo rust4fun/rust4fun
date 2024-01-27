@@ -2,4 +2,4 @@ mod articles;
 mod users;
 
 pub use articles::{ArticleEntity, ArticleRepository, InputArticleEntity};
-pub use users::UserRepository;
+pub use users::{InputUserEntity, InputUserValidateEntity, UserRepository};

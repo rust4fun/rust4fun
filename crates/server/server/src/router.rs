@@ -2,6 +2,7 @@
 use rust_study_shared::Article;
 
 pub mod articles;
+pub mod auth;
 pub mod static_file;
 
 /// opanapi 自動生成用のコード

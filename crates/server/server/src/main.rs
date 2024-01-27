@@ -2,7 +2,7 @@ use rust_study_server as server;
 
 use axum::Extension;
 use axum::{extract::Request, response::Response, Router};
-use server::State;
+use shuttle_secrets::SecretStore;
 use sqlx::PgPool;
 use std::sync::Arc;
 use std::time::Duration;
@@ -13,10 +13,15 @@ use tracing::Span;
 use uuid::Uuid;
 
 #[shuttle_runtime::main]
-async fn axum(#[shuttle_shared_db::Postgres] pool: PgPool) -> shuttle_axum::ShuttleAxum {
-    let state = Arc::new(State::init(pool).await);
+async fn axum(
+    #[shuttle_shared_db::Postgres] pool: PgPool,
+    #[shuttle_secrets::Secrets] secret_store: SecretStore,
+) -> shuttle_axum::ShuttleAxum {
+    let state = server::init(secret_store, pool).await;
+    let state = Arc::new(state);
 
     let api = Router::new()
+        .nest("/auth", server::router::auth::router())
         .nest("/articles", server::router::articles::router())
         .layer(Extension(state))
         .layer(

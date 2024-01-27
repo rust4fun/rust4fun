@@ -4,13 +4,12 @@ use chrono::{Duration, NaiveDateTime, Utc};
 use error::AuthError as Error;
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
-
 use std::sync::OnceLock;
+use uuid::Uuid;
 
 static KEYS: OnceLock<KeySet> = OnceLock::new();
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone, Default)]
 pub struct JWT(String);
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -50,7 +49,7 @@ impl JWT {
             iat,
             jti: Uuid::new_v4(),
         };
-        let header = Header::new(Algorithm::RS256);
+        let header = Header::new(Algorithm::HS512);
         let key = &KEYS.get().ok_or(Error::KeySetNotInitialize)?.encoding;
         let token = encode(&header, &claims, key)?;
 
@@ -59,7 +58,7 @@ impl JWT {
 
     pub fn validate(&self) -> Result<Claims, Error> {
         let key = &KEYS.get().ok_or(Error::KeySetNotInitialize)?.decoding;
-        let validate = Validation::new(Algorithm::RS256);
+        let validate = Validation::new(Algorithm::HS512);
         let token_data = decode::<Claims>(self.access_token(), key, &validate)?;
 
         Ok(token_data.claims)
