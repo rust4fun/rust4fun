@@ -2,6 +2,7 @@
 members = [
     "crates/client",
     "crates/front",
+    "crates/server/auth",
     "crates/server/db-connector",
     "crates/server/server",
     "crates/shared",
@@ -29,6 +30,7 @@ wasm-logger = "0.2.0"
 
 # server
 axum = "0.7.3"
+jsonwebtoken = "9.2.0"
 shuttle-axum = "0.36.0"
 shuttle-runtime = "0.36.0"
 shuttle-shared-db = { version = "0.36.0", default-features = false, features = [ "postgres" ] }

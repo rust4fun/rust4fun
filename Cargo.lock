@@ -2807,6 +2807,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "rust-study-auth"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "jsonwebtoken",
+ "serde",
+ "thiserror",
+ "uuid",
+]
+
+[[package]]
 name = "rust-study-client"
 version = "0.1.0"
 dependencies = [
@@ -2849,6 +2860,7 @@ version = "0.1.0"
 dependencies = [
  "axum 0.7.4",
  "chrono",
+ "rust-study-auth",
  "rust-study-db-connector",
  "rust-study-shared",
  "serde",
