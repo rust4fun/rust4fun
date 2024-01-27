@@ -1,0 +1,14 @@
+# .github/release.yml
+
+changelog:
+  exclude:
+    labels:
+      - ignore
+  categories:
+    - title: 新機能 🎉
+      labels:
+        - feature
+        - enhancement
+    - title: Other Changes
+      labels:
+        - "*"
