@@ -12,17 +12,6 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
 
-    - name: Add build target
-      run: rustup target add wasm32-unknown-unknown
-
-    - name: Install cargo-make
-      uses: baptiste0928/cargo-install@v2
-      with:
-        crate: cargo-make
-
-    - name: Build frontend
-      run: cargo make build-yew
-
     - name: Deploy shuttle
       uses: shuttle-hq/deploy-action@main
       with:

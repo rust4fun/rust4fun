@@ -3,6 +3,8 @@ WORKSPACE_PATH = { script = ["pwd"] }
 SPEC_PATH = "doc/specifications/api_v1.yml"
 CODEGEN_PATH = "crates/client/src/codegen.rs"
 end_point_port = "8080"
+# local 開発用のデータベースURLです。 shuttle が勝手に docker 起動してくれる.
+# port は `cargo shuttle run` した時に決まります。
 DATABASE_URL = "postgres://postgres:postgres@localhost:21735/postgres"
 API_URL = "http://localhost:8080"
 
