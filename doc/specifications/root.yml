@@ -1,0 +1,89 @@
+openapi: 3.0.3
+info:
+  title: rust-study-server
+  description: Rust study web application
+  contact:
+    name: rust4fun
+  license:
+    name: ''
+  version: 0.1.0
+paths:
+  /auth/login:
+    post:
+      tags:
+      - auth
+      operationId: login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequestBody'
+        required: true
+      responses:
+        '200':
+          description: get article records
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '404':
+          description: not found
+  /auth/signup:
+    post:
+      tags:
+      - auth
+      operationId: signup
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignupRequestBody'
+        required: true
+      responses:
+        '200':
+          description: get article records
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '404':
+          description: not found
+components:
+  schemas:
+    LoginRequestBody:
+      type: object
+      required:
+      - email
+      - password
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    SignupRequestBody:
+      type: object
+      required:
+      - email
+      - password
+      properties:
+        email:
+          type: string
+        name:
+          type: string
+          nullable: true
+        password:
+          type: string
+  responses:
+    AuthResponse:
+      description: ''
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+            - token
+            properties:
+              token:
+                type: string
+tags:
+- name: api

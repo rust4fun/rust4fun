@@ -1,0 +1,30 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n            SELECT \n                id\n                , name\n            FROM users\n            WHERE \n                email = digest($1, 'sha256')\n            AND\n            pgp_sym_decrypt_bytea(password, $3) = $2\n        ",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "id",
+        "type_info": "Uuid"
+      },
+      {
+        "ordinal": 1,
+        "name": "name",
+        "type_info": "Varchar"
+      }
+    ],
+    "parameters": {
+      "Left": [
+        "Text",
+        "Bytea",
+        "Text"
+      ]
+    },
+    "nullable": [
+      false,
+      true
+    ]
+  },
+  "hash": "c2df490d0e52639f63211435701b1ddebd62a235c3eaa8130aa80cd0ca5aee55"
+}

@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                INSERT INTO users\n                    (id, name, email, password)\n                values\n                    ($1::UUID, $2, digest($3, 'sha256'), pgp_sym_encrypt_bytea($4, $5))\n                    ON CONFLICT DO NOTHING\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Varchar",
+        "Text",
+        "Bytea",
+        "Text"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "ea01de0963da4a4d93b084105d2ebf5002a68888e19e619c7ba5f7ae4ed0c833"
+}

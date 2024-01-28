@@ -1,15 +1,18 @@
 use rust_study_db_connector as db;
 use rust_study_shared as shared;
-use utoipa::ToSchema;
 
+use crate::error::Error;
+use crate::model::AuthUser;
 use crate::State;
 use axum::{
     extract::Path,
+    response::IntoResponse,
     routing::{get, post},
     Extension, Json, Router,
 };
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
+use utoipa::ToSchema;
 use uuid::Uuid;
 use webpage::{Webpage, WebpageOptions};
 
@@ -33,11 +36,17 @@ pub struct RequestBody {
     context_path = "/api/v1",
     request_body = RequestBody,
     responses(
-        (status = 200, description = "create article record", body = Article)
+        (status = 200, description = "create article record", body = Article),
+        (status = 401, description = "unauhtorization")
     ),
     tag = "articles",
 )]
-pub async fn create(state: Extension<Arc<State>>, Json(body): Json<RequestBody>) -> Json<Article> {
+pub async fn create(
+    auth_user: Extension<AuthUser>,
+    state: Extension<Arc<State>>,
+    Json(body): Json<RequestBody>,
+) -> Result<impl IntoResponse, Error> {
+    // TODO: この処理をモジュールにまとめる
     let info =
         Webpage::from_url(&body.url, WebpageOptions::default()).expect("Could not read from URL");
 
@@ -51,23 +60,18 @@ pub async fn create(state: Extension<Arc<State>>, Json(body): Json<RequestBody>)
         .unwrap_or("https://www.rust-lang.org/static/images/rust-social-wide.jpg".to_string());
 
     let repo = db::ArticleRepository::new(state.db());
-
     let id = db::ArticleId::new_v4();
     let input = db::InputArticleEntity::new(
         body.url,
         html.title,
         html.description,
         image_url,
-        Uuid::parse_str("ab48dc58-68b5-43d2-9751-1228f334e253")
-            .unwrap()
-            .into(),
+        auth_user.id.clone(),
     );
+    repo.create(id.clone(), input).await?;
+    let article = repo.find_by_id(id).await?;
 
-    repo.create(id.clone(), input).await;
-
-    let article = repo.find_by_id(id).await;
-
-    Json(article.into())
+    Ok(Json(Article::from(article)))
 }
 
 #[utoipa::path(
@@ -75,18 +79,24 @@ pub async fn create(state: Extension<Arc<State>>, Json(body): Json<RequestBody>)
     path = "/articles/{id}",
     context_path = "/api/v1",
     responses(
-        (status = 200, description = "get article record", body = Article)
+        (status = 200, description = "get article record", body = Article),
+        (status = 401, description = "unauhtorization"),
+        (status = 404, description = "not found")
     ),
     params(
         ("id" = Uuid, Path, description = "article id"),
     ),
     tag = "articles",
 )]
-pub async fn get_item(state: Extension<Arc<State>>, Path(id): Path<Uuid>) -> Json<Article> {
+pub async fn get_item(
+    _auth_user: Extension<AuthUser>,
+    state: Extension<Arc<State>>,
+    Path(id): Path<Uuid>,
+) -> Result<impl IntoResponse, Error> {
     let repo = db::ArticleRepository::new(state.db());
-    let article = repo.find_by_id(id.into()).await;
+    let article = repo.find_by_id(id.into()).await?;
 
-    Json(article.into())
+    Ok(Json(Article::from(article)))
 }
 
 #[utoipa::path(
@@ -98,11 +108,16 @@ pub async fn get_item(state: Extension<Arc<State>>, Path(id): Path<Uuid>) -> Jso
     ),
     tag = "articles",
 )]
-pub async fn list(state: Extension<Arc<State>>) -> Json<Vec<Article>> {
+pub async fn list(
+    auth_user: Extension<AuthUser>,
+    state: Extension<Arc<State>>,
+) -> Result<impl IntoResponse, Error> {
     let repo = db::ArticleRepository::new(state.db());
-    let article = repo.list().await;
+    let article = repo.list_by_user(auth_user.id.clone()).await?;
 
-    Json(article.into_iter().map(|x| x.into()).collect())
+    Ok(Json(
+        article.into_iter().map(Article::from).collect::<Vec<_>>(),
+    ))
 }
 
 impl From<db::ArticleEntity> for Article {
