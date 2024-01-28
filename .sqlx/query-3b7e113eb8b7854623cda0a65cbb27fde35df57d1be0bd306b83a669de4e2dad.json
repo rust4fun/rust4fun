@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n            SELECT *\n            FROM articles\n        ",
+  "query": "\n                SELECT *\n                FROM articles\n                WHERE id = $1::UUID\n            ",
   "describe": {
     "columns": [
       {
@@ -45,7 +45,9 @@
       }
     ],
     "parameters": {
-      "Left": []
+      "Left": [
+        "Uuid"
+      ]
     },
     "nullable": [
       false,
@@ -58,5 +60,5 @@
       false
     ]
   },
-  "hash": "ebedd482a3d454c28e4ef0ab23f42cc0ec75817dd46541f9691b29d642357f0d"
+  "hash": "3b7e113eb8b7854623cda0a65cbb27fde35df57d1be0bd306b83a669de4e2dad"
 }

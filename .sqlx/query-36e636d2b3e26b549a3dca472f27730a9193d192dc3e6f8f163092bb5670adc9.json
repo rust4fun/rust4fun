@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "\n            SELECT *\n            FROM articles\n            WHERE id = $1::UUID\n        ",
+  "query": "\n                SELECT *\n                FROM articles\n                WHERE registered_by = $1::UUID\n            ",
   "describe": {
     "columns": [
       {
@@ -60,5 +60,5 @@
       false
     ]
   },
-  "hash": "36e8b15669b7a8fec720c0807b9c574ff0b2363898de7a8bfcb91b0c0dfbf93c"
+  "hash": "36e636d2b3e26b549a3dca472f27730a9193d192dc3e6f8f163092bb5670adc9"
 }
