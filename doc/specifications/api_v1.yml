@@ -22,6 +22,8 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Article'
+      security:
+      - token: []
     post:
       tags:
       - articles
@@ -88,5 +90,12 @@ components:
       properties:
         url:
           type: string
+  securitySchemes:
+    token:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+security:
+- token: []
 tags:
 - name: api

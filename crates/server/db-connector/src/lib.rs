@@ -3,7 +3,7 @@ mod repository;
 mod types;
 
 pub use repository::{ArticleEntity, ArticleRepository, InputArticleEntity};
-pub use repository::{InputUserEntity, InputUserValidateEntity, UserRepository};
+pub use repository::{InputUserEntity, InputUserValidateEntity, UserEntity, UserRepository};
 
 pub use types::{ArticleId, UserId};
 

@@ -1,7 +1,7 @@
 use rust_study_db_connector as db;
 use rust_study_shared as shared;
-use utoipa::ToSchema;
 
+use crate::model::AuthUser;
 use crate::State;
 use axum::{
     extract::Path,
@@ -10,6 +10,7 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
+use utoipa::ToSchema;
 use uuid::Uuid;
 use webpage::{Webpage, WebpageOptions};
 
@@ -37,7 +38,12 @@ pub struct RequestBody {
     ),
     tag = "articles",
 )]
-pub async fn create(state: Extension<Arc<State>>, Json(body): Json<RequestBody>) -> Json<Article> {
+pub async fn create(
+    auth_user: Extension<AuthUser>,
+    state: Extension<Arc<State>>,
+    Json(body): Json<RequestBody>,
+) -> Json<Article> {
+    // TODO: この処理をモジュールにまとめる
     let info =
         Webpage::from_url(&body.url, WebpageOptions::default()).expect("Could not read from URL");
 
@@ -58,9 +64,7 @@ pub async fn create(state: Extension<Arc<State>>, Json(body): Json<RequestBody>)
         html.title,
         html.description,
         image_url,
-        Uuid::parse_str("ab48dc58-68b5-43d2-9751-1228f334e253")
-            .unwrap()
-            .into(),
+        auth_user.id.clone(),
     );
 
     repo.create(id.clone(), input).await;
@@ -82,7 +86,11 @@ pub async fn create(state: Extension<Arc<State>>, Json(body): Json<RequestBody>)
     ),
     tag = "articles",
 )]
-pub async fn get_item(state: Extension<Arc<State>>, Path(id): Path<Uuid>) -> Json<Article> {
+pub async fn get_item(
+    _auth_user: Extension<AuthUser>,
+    state: Extension<Arc<State>>,
+    Path(id): Path<Uuid>,
+) -> Json<Article> {
     let repo = db::ArticleRepository::new(state.db());
     let article = repo.find_by_id(id.into()).await;
 
@@ -98,9 +106,12 @@ pub async fn get_item(state: Extension<Arc<State>>, Path(id): Path<Uuid>) -> Jso
     ),
     tag = "articles",
 )]
-pub async fn list(state: Extension<Arc<State>>) -> Json<Vec<Article>> {
+pub async fn list(
+    auth_user: Extension<AuthUser>,
+    state: Extension<Arc<State>>,
+) -> Json<Vec<Article>> {
     let repo = db::ArticleRepository::new(state.db());
-    let article = repo.list().await;
+    let article = repo.list_by_user(auth_user.id.clone()).await;
 
     Json(article.into_iter().map(|x| x.into()).collect())
 }

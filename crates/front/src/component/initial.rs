@@ -1,6 +1,6 @@
 use crate::api::types;
+use crate::api::ApiRequester;
 use crate::api::ClientArticlesExt;
-use crate::api::Requester;
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
 use yew_bootstrap::component::card::*;
@@ -52,7 +52,14 @@ pub fn initial() -> Html {
 }
 
 async fn on_clicks(state: UseStateHandle<Vec<types::Article>>) {
-    let req = Requester::new();
+    // TODO: local storage を扱う glbal store を作る
+    let window = web_sys::window().unwrap();
+    let storage = window.local_storage().unwrap().unwrap();
+    // token を fetch する仕組みを作る
+    storage.set("access_token", "").unwrap();
+    let token = storage.get_item("access_token").unwrap().unwrap();
+
+    let req = ApiRequester::new(&token);
 
     // let body = types::RequestBody::builder()
     //     .url("https://qiita.com/noshishi/items/2821c01d590bf9c96038".to_string());

@@ -2,6 +2,8 @@ use rust_study_auth as auth;
 use rust_study_db_connector as db;
 use rust_study_shared as shared;
 
+pub mod middleware;
+pub mod model;
 pub mod router;
 
 use db::DbConnector;

@@ -8,6 +8,7 @@ rust-version.workspace = true
 
 [dependencies]
 axum = { workspace = true }
+axum-extra = { workspace = true, features = [ "typed-header" ]}
 chrono = { workspace = true, features = [ "serde" ] }
 shuttle-axum = { workspace = true }
 shuttle-runtime = { workspace = true }

@@ -8,8 +8,6 @@ end_point_port = "8080"
 DATABASE_URL = "postgres://postgres:postgres@localhost:21735/postgres"
 API_URL = "http://localhost:8080"
 
-LOCAL_URL = "postgres://postgres:postgres@localhost:21735/postgres"
-
 [config]
 default_to_workspace = false
 

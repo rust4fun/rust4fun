@@ -61,10 +61,10 @@ impl ArticleRepository {
         let article = sqlx::query_as!(
             ArticleEntity,
             r#"
-            SELECT *
-            FROM articles
-            WHERE id = $1::UUID
-        "#,
+                SELECT *
+                FROM articles
+                WHERE id = $1::UUID
+            "#,
             id.id()
         )
         .fetch_one(&pool)
@@ -73,15 +73,17 @@ impl ArticleRepository {
         article.unwrap()
     }
 
-    pub async fn list(&self) -> Vec<ArticleEntity> {
+    pub async fn list_by_user(&self, user_id: UserId) -> Vec<ArticleEntity> {
         let pool = self.0.get_pool();
 
         let article = sqlx::query_as!(
             ArticleEntity,
             r#"
-            SELECT *
-            FROM articles
-        "#,
+                SELECT *
+                FROM articles
+                WHERE registered_by = $1::UUID
+            "#,
+            user_id.id()
         )
         .fetch_all(&pool)
         .await;
