@@ -1,3 +1,4 @@
+use crate::error::Error;
 use crate::types::{ArticleId, UserId};
 use crate::DbConnector;
 use chrono::NaiveDateTime;
@@ -32,7 +33,7 @@ impl ArticleRepository {
         Self(db)
     }
 
-    pub async fn create(&self, id: ArticleId, input: InputArticleEntity) {
+    pub async fn create(&self, id: ArticleId, input: InputArticleEntity) -> Result<(), Error> {
         let pool = self.0.get_pool();
 
         let res = sqlx::query!(
@@ -50,12 +51,17 @@ impl ArticleRepository {
             input.registered_by.id()
         )
         .execute(&pool)
-        .await;
+        .await
+        .map_err(Error::Database)?;
 
-        tracing::info!("{res:?}");
+        if res.rows_affected() == 0 {
+            return Err(Error::AlreadyExsited("articles".into()));
+        }
+
+        Ok(())
     }
 
-    pub async fn find_by_id(&self, id: ArticleId) -> ArticleEntity {
+    pub async fn find_by_id(&self, id: ArticleId) -> Result<ArticleEntity, Error> {
         let pool = self.0.get_pool();
 
         let article = sqlx::query_as!(
@@ -68,15 +74,16 @@ impl ArticleRepository {
             id.id()
         )
         .fetch_one(&pool)
-        .await;
+        .await
+        .map_err(Error::Database)?;
 
-        article.unwrap()
+        Ok(article)
     }
 
-    pub async fn list_by_user(&self, user_id: UserId) -> Vec<ArticleEntity> {
+    pub async fn list_by_user(&self, user_id: UserId) -> Result<Vec<ArticleEntity>, Error> {
         let pool = self.0.get_pool();
 
-        let article = sqlx::query_as!(
+        let articles = sqlx::query_as!(
             ArticleEntity,
             r#"
                 SELECT *
@@ -86,8 +93,9 @@ impl ArticleRepository {
             user_id.id()
         )
         .fetch_all(&pool)
-        .await;
+        .await
+        .map_err(Error::Database)?;
 
-        article.unwrap()
+        Ok(articles)
     }
 }

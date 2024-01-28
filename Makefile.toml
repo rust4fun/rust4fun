@@ -1,7 +1,9 @@
 [env]
 WORKSPACE_PATH = { script = ["pwd"] }
-SPEC_PATH = "doc/specifications/api_v1.yml"
-CODEGEN_PATH = "crates/client/src/codegen.rs"
+API_SPEC_PATH = "doc/specifications/api_v1.yml"
+ROOT_SPEC_PATH = "doc/specifications/root.yml"
+API_CODEGEN_PATH = "crates/client/src/codegen.rs"
+ROOT_CODEGEN_PATH = "crates/client/src/root_codegen.rs"
 end_point_port = "8080"
 # local 開発用のデータベースURLです。 shuttle が勝手に docker 起動してくれる.
 # port は `cargo shuttle run` した時に決まります。

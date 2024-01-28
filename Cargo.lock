@@ -2881,6 +2881,7 @@ dependencies = [
  "chrono",
  "derive-new",
  "sqlx",
+ "thiserror",
  "tracing",
  "uuid",
 ]
@@ -2905,6 +2906,7 @@ dependencies = [
 name = "rust-study-server"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "axum 0.7.4",
  "axum-extra",
  "chrono",
@@ -2917,6 +2919,7 @@ dependencies = [
  "shuttle-secrets",
  "shuttle-shared-db",
  "sqlx",
+ "thiserror",
  "tokio",
  "tower-http 0.5.1",
  "tracing",

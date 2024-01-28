@@ -22,8 +22,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Article'
-      security:
-      - token: []
     post:
       tags:
       - articles
@@ -41,6 +39,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Article'
+        '401':
+          description: unauhtorization
   /api/v1/articles/{id}:
     get:
       tags:
@@ -61,6 +61,10 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Article'
+        '401':
+          description: unauhtorization
+        '404':
+          description: not found
 components:
   schemas:
     Article:

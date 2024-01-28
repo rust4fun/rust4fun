@@ -2,11 +2,13 @@ use rust_study_auth as auth;
 use rust_study_db_connector as db;
 use rust_study_shared as shared;
 
+pub mod error;
 pub mod middleware;
 pub mod model;
 pub mod router;
 
 use db::DbConnector;
+use error::Error;
 use serde::{Deserialize, Serialize};
 use shuttle_secrets::SecretStore;
 use sqlx::PgPool;
@@ -25,12 +27,16 @@ impl State {
     }
 }
 
-pub async fn init(secret_store: SecretStore, pool: PgPool) -> State {
-    let auth_secret = secret_store.get("AUTH_SECRET").unwrap();
-    auth::init(auth_secret.as_bytes()).unwrap();
+pub async fn init(secret_store: SecretStore, pool: PgPool) -> Result<State, Error> {
+    let auth_secret = secret_store
+        .get("AUTH_SECRET")
+        .ok_or(Error::NotFoundSecrets("AUTH_SECRET".into()))?;
+    auth::init(auth_secret.as_bytes())?;
 
-    let db_secret = secret_store.get("DB_SECRET").unwrap();
-    let db = db::init(pool, db_secret).await;
+    let db_secret = secret_store
+        .get("DB_SECRET")
+        .ok_or(Error::NotFoundSecrets("DB_SECRET".into()))?;
+    let db = db::init(pool, db_secret).await?;
 
-    State { db: Arc::new(db) }
+    Ok(State { db: Arc::new(db) })
 }

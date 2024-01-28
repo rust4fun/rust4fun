@@ -1,5 +1,6 @@
 use rust_study_server as server;
 
+use anyhow::Context as _;
 use axum::{extract::Request, response::Response, Router};
 use shuttle_secrets::SecretStore;
 use sqlx::PgPool;
@@ -16,7 +17,9 @@ async fn axum(
     #[shuttle_shared_db::Postgres] pool: PgPool,
     #[shuttle_secrets::Secrets] secret_store: SecretStore,
 ) -> shuttle_axum::ShuttleAxum {
-    let state = server::init(secret_store, pool).await;
+    let state = server::init(secret_store, pool)
+        .await
+        .context("falied to init")?;
     let state = Arc::new(state);
 
     let api = server::router::api::api_roouter(state.clone()).layer(

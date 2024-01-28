@@ -4,6 +4,8 @@ use thiserror::Error;
 pub enum AuthError {
     #[error("failed to initialize")]
     KeySetNotInitialize,
-    #[error("failed to initialize")]
-    Jwt(#[from] jsonwebtoken::errors::Error),
+    #[error("invalid jwt in encoding: {0}")]
+    EoncodeInvalidJwt(jsonwebtoken::errors::Error),
+    #[error("invalid jwt in decoding: {0}")]
+    DecodeInvalidJwt(jsonwebtoken::errors::Error),
 }

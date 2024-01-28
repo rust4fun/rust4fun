@@ -1,7 +1,7 @@
 pub mod error;
 
 use chrono::{Duration, Utc};
-use error::AuthError as Error;
+pub use error::AuthError as Error;
 use jsonwebtoken::{decode, encode, Algorithm, DecodingKey, EncodingKey, Header, Validation};
 use serde::{Deserialize, Serialize};
 use std::sync::OnceLock;
@@ -55,7 +55,7 @@ impl JWT {
         };
         let header = Header::new(Algorithm::HS512);
         let key = &KEYS.get().ok_or(Error::KeySetNotInitialize)?.encoding;
-        let token = encode(&header, &claims, key)?;
+        let token = encode(&header, &claims, key).map_err(Error::EoncodeInvalidJwt)?;
 
         Ok(JWT(token))
     }
@@ -64,7 +64,8 @@ impl JWT {
         let key = &KEYS.get().ok_or(Error::KeySetNotInitialize)?.decoding;
         let mut validate = Validation::new(Algorithm::HS512);
         validate.set_audience(&[aud]);
-        let token_data = decode::<Claims>(self.access_token(), key, &validate)?;
+        let token_data = decode::<Claims>(self.access_token(), key, &validate)
+            .map_err(Error::DecodeInvalidJwt)?;
 
         Ok(token_data.claims)
     }

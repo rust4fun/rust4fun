@@ -13,6 +13,7 @@ use utoipa::{
     Modify, OpenApi,
 };
 
+/// API
 #[cfg(feature = "openapi")]
 #[derive(OpenApi)]
 #[openapi(
@@ -32,6 +33,27 @@ use utoipa::{
     tags((name = "api"))
 )]
 pub struct ApiDoc;
+
+/// Auth
+#[cfg(feature = "openapi")]
+#[derive(OpenApi)]
+#[openapi(
+    paths(
+        auth::login,
+        auth::signup,
+    ),
+    components(
+        schemas(
+            auth::LoginRequestBody,
+            auth::SignupRequestBody,
+        ),
+        responses(
+            auth::AuthResponse
+        ),
+    ),
+    tags((name = "root"))
+)]
+pub struct AuthDoc;
 
 #[cfg(feature = "openapi")]
 struct Security;

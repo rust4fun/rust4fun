@@ -7,6 +7,7 @@ pub use repository::{InputUserEntity, InputUserValidateEntity, UserEntity, UserR
 
 pub use types::{ArticleId, UserId};
 
+pub use error::Error;
 use sqlx::PgPool;
 
 pub struct DbConnector {
@@ -27,16 +28,17 @@ impl DbConnector {
         &self.secret
     }
 
-    pub async fn migration(&self) {
-        let res = sqlx::migrate!("./migrations").run(&self.pool).await;
-
-        tracing::info!("{res:?}");
+    pub async fn migration(&self) -> Result<(), Error> {
+        sqlx::migrate!("./migrations")
+            .run(&self.pool)
+            .await
+            .map_err(Error::Migration)
     }
 }
 
-pub async fn init(pool: PgPool, secret: String) -> DbConnector {
+pub async fn init(pool: PgPool, secret: String) -> Result<DbConnector, Error> {
     let db = DbConnector::new(pool, secret);
-    db.migration().await;
+    db.migration().await?;
 
-    db
+    Ok(db)
 }

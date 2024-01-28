@@ -1,3 +1,4 @@
+use crate::error::Error;
 use crate::types::UserId;
 use crate::DbConnector;
 use derive_new::new;
@@ -28,7 +29,7 @@ impl UserRepository {
         Self(db)
     }
 
-    pub async fn create(&self, id: UserId, input: InputUserEntity) -> u64 {
+    pub async fn create(&self, id: UserId, input: InputUserEntity) -> Result<(), Error> {
         let pool = self.0.get_pool();
 
         let res = sqlx::query!(
@@ -47,12 +48,19 @@ impl UserRepository {
         )
         .execute(&pool)
         .await
-        .unwrap();
+        .map_err(Error::Database)?;
 
-        res.rows_affected()
+        if res.rows_affected() == 0 {
+            return Err(Error::AlreadyExsited("articles".into()));
+        }
+
+        Ok(())
     }
 
-    pub async fn validate_and_get(&self, input: InputUserValidateEntity) -> UserEntity {
+    pub async fn validate_and_get(
+        &self,
+        input: InputUserValidateEntity,
+    ) -> Result<UserEntity, Error> {
         let pool = self.0.get_pool();
 
         let user = sqlx::query_as!(
@@ -72,12 +80,13 @@ impl UserRepository {
             self.0.get_secret()
         )
         .fetch_one(&pool)
-        .await;
+        .await
+        .map_err(Error::Database)?;
 
-        user.unwrap()
+        Ok(user)
     }
 
-    pub async fn find_by_id(&self, id: UserId) -> UserEntity {
+    pub async fn find_by_id(&self, id: UserId) -> Result<UserEntity, Error> {
         let pool = self.0.get_pool();
 
         let user = sqlx::query_as!(
@@ -92,8 +101,9 @@ impl UserRepository {
             id.id()
         )
         .fetch_one(&pool)
-        .await;
+        .await
+        .map_err(Error::Database)?;
 
-        user.unwrap()
+        Ok(user)
     }
 }

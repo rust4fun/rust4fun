@@ -1,6 +1,7 @@
 use rust_study_auth as auth;
 use rust_study_db_connector as db;
 
+use crate::error::Error;
 use crate::model::AuthUser;
 use crate::State;
 use axum::{
@@ -36,7 +37,7 @@ where
     Arc<State>: FromRef<S>,
     S: Send + Sync,
 {
-    type Rejection = Response;
+    type Rejection = Error;
 
     async fn from_request_parts(parts: &mut Parts, state: &S) -> Result<Self, Self::Rejection> {
         let app_state = Arc::<State>::from_ref(state);
@@ -54,7 +55,7 @@ where
         // ユーザーの存在確認
         let db = app_state.db();
         let repo = db::UserRepository::new(db);
-        let user = repo.find_by_id(claims.sub().into()).await;
+        let user = repo.find_by_id(claims.sub().into()).await?;
 
         Ok((user, claims).into())
     }
