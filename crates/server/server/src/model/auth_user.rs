@@ -10,6 +10,12 @@ pub struct AuthUser {
     pub claims: auth::Claims,
 }
 
+impl AuthUser {
+    pub fn id(&self) -> UserId {
+        self.id.clone()
+    }
+}
+
 impl From<(db::UserEntity, auth::Claims)> for AuthUser {
     fn from((user, claims): (db::UserEntity, auth::Claims)) -> Self {
         Self {

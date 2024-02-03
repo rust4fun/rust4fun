@@ -21,11 +21,15 @@ rust-version = "1.75.0"
 # client
 
 # front
+gloo = "0.11.0"
 wasm-bindgen-futures = "0.4.40"
 wasm-bindgen = "0.2"
 web-sys = "0.3.67"
 yew = "0.21.0"
+yew-router = "0.18.0"
 yew-bootstrap = "0.10.0"
+yewdux = "0.10.0"
+yew_icons = "0.8"
 log = "0.4.6"
 wasm-logger = "0.2.0"
 

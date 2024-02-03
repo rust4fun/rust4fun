@@ -12,3 +12,8 @@ pub struct Article {
     pub description: Option<String>,
     pub image_url: String,
 }
+
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone, ToSchema, new)]
+pub struct User {
+    pub name: Option<String>,
+}

@@ -26,6 +26,7 @@ impl GenerateClient {
         ];
 
         for (s, c) in spec_paths.into_iter().zip(codegen_paths) {
+            println!("{s} {c}");
             code_generate(self.from_file, &s, &c)?;
         }
 

@@ -8,6 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: develop
     steps:
     - name: Checkout
       uses: actions/checkout@v4
@@ -21,7 +22,16 @@ jobs:
         crate: cargo-make
 
     - name: Build frontend
-      run: cargo make build-yew
+      run: |
+        echo ${{ vars.AUTH_URL }}
+        echo ${{ vars.API_URL }}
+        AUTH_URL=${{ vars.AUTH_URL }} API_URL=${{ vars.API_URL }} cargo make build-yew
+
+    - name: Create and write to Secrets.toml
+      run: |
+        echo 'AUTH_SECRET = "${{ secrets.AUTH_SECRET }}"' >> crates/server/server/Secrets.toml
+        echo 'DB_SECRET = "${{ secrets.DB_SECRET }}"' >> crates/server/server/Secrets.toml
+        echo crates/server/server/Secrets.toml
 
     - name: Deploy shuttle
       uses: shuttle-hq/deploy-action@main

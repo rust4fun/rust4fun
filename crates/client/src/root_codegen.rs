@@ -7,7 +7,7 @@ pub mod types {
     use serde::{Deserialize, Serialize};
     #[allow(unused_imports)]
     use std::convert::TryFrom;
-    ///Article
+    ///AuthResponse
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -15,31 +15,10 @@ pub mod types {
     /**{
       "type": "object",
       "required": [
-        "id",
-        "image_url",
-        "url"
+        "token"
       ],
       "properties": {
-        "description": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "id": {
-          "type": "string",
-          "format": "uuid"
-        },
-        "image_url": {
-          "type": "string"
-        },
-        "title": {
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "url": {
+        "token": {
           "type": "string"
         }
       }
@@ -47,26 +26,20 @@ pub mod types {
     /// ```
     /// </details>
     #[derive(Clone, Debug, Deserialize, Serialize)]
-    pub struct Article {
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub description: Option<String>,
-        pub id: uuid::Uuid,
-        pub image_url: String,
-        #[serde(default, skip_serializing_if = "Option::is_none")]
-        pub title: Option<String>,
-        pub url: String,
+    pub struct AuthResponse {
+        pub token: String,
     }
-    impl From<&Article> for Article {
-        fn from(value: &Article) -> Self {
+    impl From<&AuthResponse> for AuthResponse {
+        fn from(value: &AuthResponse) -> Self {
             value.clone()
         }
     }
-    impl Article {
-        pub fn builder() -> builder::Article {
+    impl AuthResponse {
+        pub fn builder() -> builder::AuthResponse {
             Default::default()
         }
     }
-    ///RequestBody
+    ///LoginRequestBody
     ///
     /// <details><summary>JSON schema</summary>
     ///
@@ -74,10 +47,14 @@ pub mod types {
     /**{
       "type": "object",
       "required": [
-        "url"
+        "email",
+        "password"
       ],
       "properties": {
-        "url": {
+        "email": {
+          "type": "string"
+        },
+        "password": {
           "type": "string"
         }
       }
@@ -85,146 +62,220 @@ pub mod types {
     /// ```
     /// </details>
     #[derive(Clone, Debug, Deserialize, Serialize)]
-    pub struct RequestBody {
-        pub url: String,
+    pub struct LoginRequestBody {
+        pub email: String,
+        pub password: String,
     }
-    impl From<&RequestBody> for RequestBody {
-        fn from(value: &RequestBody) -> Self {
+    impl From<&LoginRequestBody> for LoginRequestBody {
+        fn from(value: &LoginRequestBody) -> Self {
             value.clone()
         }
     }
-    impl RequestBody {
-        pub fn builder() -> builder::RequestBody {
+    impl LoginRequestBody {
+        pub fn builder() -> builder::LoginRequestBody {
+            Default::default()
+        }
+    }
+    ///SignupRequestBody
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    /**{
+      "type": "object",
+      "required": [
+        "email",
+        "password"
+      ],
+      "properties": {
+        "email": {
+          "type": "string"
+        },
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "password": {
+          "type": "string"
+        }
+      }
+    }*/
+    /// ```
+    /// </details>
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    pub struct SignupRequestBody {
+        pub email: String,
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub name: Option<String>,
+        pub password: String,
+    }
+    impl From<&SignupRequestBody> for SignupRequestBody {
+        fn from(value: &SignupRequestBody) -> Self {
+            value.clone()
+        }
+    }
+    impl SignupRequestBody {
+        pub fn builder() -> builder::SignupRequestBody {
             Default::default()
         }
     }
     pub mod builder {
         #[derive(Clone, Debug)]
-        pub struct Article {
-            description: Result<Option<String>, String>,
-            id: Result<uuid::Uuid, String>,
-            image_url: Result<String, String>,
-            title: Result<Option<String>, String>,
-            url: Result<String, String>,
+        pub struct AuthResponse {
+            token: Result<String, String>,
         }
-        impl Default for Article {
+        impl Default for AuthResponse {
             fn default() -> Self {
                 Self {
-                    description: Ok(Default::default()),
-                    id: Err("no value supplied for id".to_string()),
-                    image_url: Err("no value supplied for image_url".to_string()),
-                    title: Ok(Default::default()),
-                    url: Err("no value supplied for url".to_string()),
+                    token: Err("no value supplied for token".to_string()),
                 }
             }
         }
-        impl Article {
-            pub fn description<T>(mut self, value: T) -> Self
-            where
-                T: std::convert::TryInto<Option<String>>,
-                T::Error: std::fmt::Display,
-            {
-                self.description = value
-                    .try_into()
-                    .map_err(|e| format!("error converting supplied value for description: {}", e));
-                self
-            }
-            pub fn id<T>(mut self, value: T) -> Self
-            where
-                T: std::convert::TryInto<uuid::Uuid>,
-                T::Error: std::fmt::Display,
-            {
-                self.id = value
-                    .try_into()
-                    .map_err(|e| format!("error converting supplied value for id: {}", e));
-                self
-            }
-            pub fn image_url<T>(mut self, value: T) -> Self
+        impl AuthResponse {
+            pub fn token<T>(mut self, value: T) -> Self
             where
                 T: std::convert::TryInto<String>,
                 T::Error: std::fmt::Display,
             {
-                self.image_url = value
+                self.token = value
                     .try_into()
-                    .map_err(|e| format!("error converting supplied value for image_url: {}", e));
-                self
-            }
-            pub fn title<T>(mut self, value: T) -> Self
-            where
-                T: std::convert::TryInto<Option<String>>,
-                T::Error: std::fmt::Display,
-            {
-                self.title = value
-                    .try_into()
-                    .map_err(|e| format!("error converting supplied value for title: {}", e));
-                self
-            }
-            pub fn url<T>(mut self, value: T) -> Self
-            where
-                T: std::convert::TryInto<String>,
-                T::Error: std::fmt::Display,
-            {
-                self.url = value
-                    .try_into()
-                    .map_err(|e| format!("error converting supplied value for url: {}", e));
+                    .map_err(|e| format!("error converting supplied value for token: {}", e));
                 self
             }
         }
-        impl std::convert::TryFrom<Article> for super::Article {
+        impl std::convert::TryFrom<AuthResponse> for super::AuthResponse {
             type Error = String;
-            fn try_from(value: Article) -> Result<Self, String> {
+            fn try_from(value: AuthResponse) -> Result<Self, String> {
                 Ok(Self {
-                    description: value.description?,
-                    id: value.id?,
-                    image_url: value.image_url?,
-                    title: value.title?,
-                    url: value.url?,
+                    token: value.token?,
                 })
             }
         }
-        impl From<super::Article> for Article {
-            fn from(value: super::Article) -> Self {
+        impl From<super::AuthResponse> for AuthResponse {
+            fn from(value: super::AuthResponse) -> Self {
                 Self {
-                    description: Ok(value.description),
-                    id: Ok(value.id),
-                    image_url: Ok(value.image_url),
-                    title: Ok(value.title),
-                    url: Ok(value.url),
+                    token: Ok(value.token),
                 }
             }
         }
         #[derive(Clone, Debug)]
-        pub struct RequestBody {
-            url: Result<String, String>,
+        pub struct LoginRequestBody {
+            email: Result<String, String>,
+            password: Result<String, String>,
         }
-        impl Default for RequestBody {
+        impl Default for LoginRequestBody {
             fn default() -> Self {
                 Self {
-                    url: Err("no value supplied for url".to_string()),
+                    email: Err("no value supplied for email".to_string()),
+                    password: Err("no value supplied for password".to_string()),
                 }
             }
         }
-        impl RequestBody {
-            pub fn url<T>(mut self, value: T) -> Self
+        impl LoginRequestBody {
+            pub fn email<T>(mut self, value: T) -> Self
             where
                 T: std::convert::TryInto<String>,
                 T::Error: std::fmt::Display,
             {
-                self.url = value
+                self.email = value
                     .try_into()
-                    .map_err(|e| format!("error converting supplied value for url: {}", e));
+                    .map_err(|e| format!("error converting supplied value for email: {}", e));
+                self
+            }
+            pub fn password<T>(mut self, value: T) -> Self
+            where
+                T: std::convert::TryInto<String>,
+                T::Error: std::fmt::Display,
+            {
+                self.password = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for password: {}", e));
                 self
             }
         }
-        impl std::convert::TryFrom<RequestBody> for super::RequestBody {
+        impl std::convert::TryFrom<LoginRequestBody> for super::LoginRequestBody {
             type Error = String;
-            fn try_from(value: RequestBody) -> Result<Self, String> {
-                Ok(Self { url: value.url? })
+            fn try_from(value: LoginRequestBody) -> Result<Self, String> {
+                Ok(Self {
+                    email: value.email?,
+                    password: value.password?,
+                })
             }
         }
-        impl From<super::RequestBody> for RequestBody {
-            fn from(value: super::RequestBody) -> Self {
-                Self { url: Ok(value.url) }
+        impl From<super::LoginRequestBody> for LoginRequestBody {
+            fn from(value: super::LoginRequestBody) -> Self {
+                Self {
+                    email: Ok(value.email),
+                    password: Ok(value.password),
+                }
+            }
+        }
+        #[derive(Clone, Debug)]
+        pub struct SignupRequestBody {
+            email: Result<String, String>,
+            name: Result<Option<String>, String>,
+            password: Result<String, String>,
+        }
+        impl Default for SignupRequestBody {
+            fn default() -> Self {
+                Self {
+                    email: Err("no value supplied for email".to_string()),
+                    name: Ok(Default::default()),
+                    password: Err("no value supplied for password".to_string()),
+                }
+            }
+        }
+        impl SignupRequestBody {
+            pub fn email<T>(mut self, value: T) -> Self
+            where
+                T: std::convert::TryInto<String>,
+                T::Error: std::fmt::Display,
+            {
+                self.email = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for email: {}", e));
+                self
+            }
+            pub fn name<T>(mut self, value: T) -> Self
+            where
+                T: std::convert::TryInto<Option<String>>,
+                T::Error: std::fmt::Display,
+            {
+                self.name = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for name: {}", e));
+                self
+            }
+            pub fn password<T>(mut self, value: T) -> Self
+            where
+                T: std::convert::TryInto<String>,
+                T::Error: std::fmt::Display,
+            {
+                self.password = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for password: {}", e));
+                self
+            }
+        }
+        impl std::convert::TryFrom<SignupRequestBody> for super::SignupRequestBody {
+            type Error = String;
+            fn try_from(value: SignupRequestBody) -> Result<Self, String> {
+                Ok(Self {
+                    email: value.email?,
+                    name: value.name?,
+                    password: value.password?,
+                })
+            }
+        }
+        impl From<super::SignupRequestBody> for SignupRequestBody {
+            fn from(value: super::SignupRequestBody) -> Self {
+                Self {
+                    email: Ok(value.email),
+                    name: Ok(value.name),
+                    password: Ok(value.password),
+                }
             }
         }
     }
@@ -285,45 +336,32 @@ impl Client {
         "0.1.0"
     }
 }
-pub trait ClientArticlesExt {
-    /**Sends a `GET` request to `/api/v1/articles`
+pub trait ClientAuthExt {
+    /**Sends a `POST` request to `/auth/login`
 
     ```ignore
-    let response = client.list()
-        .send()
-        .await;
-    ```*/
-    fn list(&self) -> builder::List;
-    /**Sends a `POST` request to `/api/v1/articles`
-
-    ```ignore
-    let response = client.create()
+    let response = client.login()
         .body(body)
         .send()
         .await;
     ```*/
-    fn create(&self) -> builder::Create;
-    /**Sends a `GET` request to `/api/v1/articles/{id}`
+    fn login(&self) -> builder::Login;
+    /**Sends a `POST` request to `/auth/signup`
 
-    Arguments:
-    - `id`: article id
     ```ignore
-    let response = client.get_item()
-        .id(id)
+    let response = client.signup()
+        .body(body)
         .send()
         .await;
     ```*/
-    fn get_item(&self) -> builder::GetItem;
+    fn signup(&self) -> builder::Signup;
 }
-impl ClientArticlesExt for Client {
-    fn list(&self) -> builder::List {
-        builder::List::new(self)
+impl ClientAuthExt for Client {
+    fn login(&self) -> builder::Login {
+        builder::Login::new(self)
     }
-    fn create(&self) -> builder::Create {
-        builder::Create::new(self)
-    }
-    fn get_item(&self) -> builder::GetItem {
-        builder::GetItem::new(self)
+    fn signup(&self) -> builder::Signup {
+        builder::Signup::new(self)
     }
 }
 pub mod builder {
@@ -332,77 +370,48 @@ pub mod builder {
     use super::{
         encode_path, ByteStream, Error, HeaderMap, HeaderValue, RequestBuilderExt, ResponseValue,
     };
-    /**Builder for [`ClientArticlesExt::list`]
+    /**Builder for [`ClientAuthExt::login`]
 
-    [`ClientArticlesExt::list`]: super::ClientArticlesExt::list*/
+    [`ClientAuthExt::login`]: super::ClientAuthExt::login*/
     #[derive(Debug, Clone)]
-    pub struct List<'a> {
+    pub struct Login<'a> {
         client: &'a super::Client,
+        body: Result<types::builder::LoginRequestBody, String>,
     }
-    impl<'a> List<'a> {
-        pub fn new(client: &'a super::Client) -> Self {
-            Self { client: client }
-        }
-        ///Sends a `GET` request to `/api/v1/articles`
-        pub async fn send(self) -> Result<ResponseValue<Vec<types::Article>>, Error<()>> {
-            let Self { client } = self;
-            let url = format!("{}/api/v1/articles", client.baseurl,);
-            let request = client
-                .client
-                .get(url)
-                .header(
-                    reqwest::header::ACCEPT,
-                    reqwest::header::HeaderValue::from_static("application/json"),
-                )
-                .build()?;
-            let result = client.client.execute(request).await;
-            let response = result?;
-            match response.status().as_u16() {
-                200u16 => ResponseValue::from_response(response).await,
-                _ => Err(Error::UnexpectedResponse(response)),
-            }
-        }
-    }
-    /**Builder for [`ClientArticlesExt::create`]
-
-    [`ClientArticlesExt::create`]: super::ClientArticlesExt::create*/
-    #[derive(Debug, Clone)]
-    pub struct Create<'a> {
-        client: &'a super::Client,
-        body: Result<types::builder::RequestBody, String>,
-    }
-    impl<'a> Create<'a> {
+    impl<'a> Login<'a> {
         pub fn new(client: &'a super::Client) -> Self {
             Self {
                 client: client,
-                body: Ok(types::builder::RequestBody::default()),
+                body: Ok(types::builder::LoginRequestBody::default()),
             }
         }
         pub fn body<V>(mut self, value: V) -> Self
         where
-            V: std::convert::TryInto<types::RequestBody>,
-            <V as std::convert::TryInto<types::RequestBody>>::Error: std::fmt::Display,
+            V: std::convert::TryInto<types::LoginRequestBody>,
+            <V as std::convert::TryInto<types::LoginRequestBody>>::Error: std::fmt::Display,
         {
             self.body = value
                 .try_into()
                 .map(From::from)
-                .map_err(|s| format!("conversion to `RequestBody` for body failed: {}", s));
+                .map_err(|s| format!("conversion to `LoginRequestBody` for body failed: {}", s));
             self
         }
         pub fn body_map<F>(mut self, f: F) -> Self
         where
-            F: std::ops::FnOnce(types::builder::RequestBody) -> types::builder::RequestBody,
+            F: std::ops::FnOnce(
+                types::builder::LoginRequestBody,
+            ) -> types::builder::LoginRequestBody,
         {
             self.body = self.body.map(f);
             self
         }
-        ///Sends a `POST` request to `/api/v1/articles`
-        pub async fn send(self) -> Result<ResponseValue<types::Article>, Error<()>> {
+        ///Sends a `POST` request to `/auth/login`
+        pub async fn send(self) -> Result<ResponseValue<types::AuthResponse>, Error<()>> {
             let Self { client, body } = self;
             let body = body
-                .and_then(std::convert::TryInto::<types::RequestBody>::try_into)
+                .and_then(std::convert::TryInto::<types::LoginRequestBody>::try_into)
                 .map_err(Error::InvalidRequest)?;
-            let url = format!("{}/api/v1/articles", client.baseurl,);
+            let url = format!("{}/auth/login", client.baseurl,);
             let request = client
                 .client
                 .post(url)
@@ -416,57 +425,66 @@ pub mod builder {
             let response = result?;
             match response.status().as_u16() {
                 200u16 => ResponseValue::from_response(response).await,
-                401u16 => Err(Error::ErrorResponse(ResponseValue::empty(response))),
+                404u16 => Err(Error::ErrorResponse(ResponseValue::empty(response))),
                 _ => Err(Error::UnexpectedResponse(response)),
             }
         }
     }
-    /**Builder for [`ClientArticlesExt::get_item`]
+    /**Builder for [`ClientAuthExt::signup`]
 
-    [`ClientArticlesExt::get_item`]: super::ClientArticlesExt::get_item*/
+    [`ClientAuthExt::signup`]: super::ClientAuthExt::signup*/
     #[derive(Debug, Clone)]
-    pub struct GetItem<'a> {
+    pub struct Signup<'a> {
         client: &'a super::Client,
-        id: Result<uuid::Uuid, String>,
+        body: Result<types::builder::SignupRequestBody, String>,
     }
-    impl<'a> GetItem<'a> {
+    impl<'a> Signup<'a> {
         pub fn new(client: &'a super::Client) -> Self {
             Self {
                 client: client,
-                id: Err("id was not initialized".to_string()),
+                body: Ok(types::builder::SignupRequestBody::default()),
             }
         }
-        pub fn id<V>(mut self, value: V) -> Self
+        pub fn body<V>(mut self, value: V) -> Self
         where
-            V: std::convert::TryInto<uuid::Uuid>,
+            V: std::convert::TryInto<types::SignupRequestBody>,
+            <V as std::convert::TryInto<types::SignupRequestBody>>::Error: std::fmt::Display,
         {
-            self.id = value
+            self.body = value
                 .try_into()
-                .map_err(|_| "conversion to `uuid :: Uuid` for id failed".to_string());
+                .map(From::from)
+                .map_err(|s| format!("conversion to `SignupRequestBody` for body failed: {}", s));
             self
         }
-        ///Sends a `GET` request to `/api/v1/articles/{id}`
-        pub async fn send(self) -> Result<ResponseValue<types::Article>, Error<()>> {
-            let Self { client, id } = self;
-            let id = id.map_err(Error::InvalidRequest)?;
-            let url = format!(
-                "{}/api/v1/articles/{}",
-                client.baseurl,
-                encode_path(&id.to_string()),
-            );
+        pub fn body_map<F>(mut self, f: F) -> Self
+        where
+            F: std::ops::FnOnce(
+                types::builder::SignupRequestBody,
+            ) -> types::builder::SignupRequestBody,
+        {
+            self.body = self.body.map(f);
+            self
+        }
+        ///Sends a `POST` request to `/auth/signup`
+        pub async fn send(self) -> Result<ResponseValue<types::AuthResponse>, Error<()>> {
+            let Self { client, body } = self;
+            let body = body
+                .and_then(std::convert::TryInto::<types::SignupRequestBody>::try_into)
+                .map_err(Error::InvalidRequest)?;
+            let url = format!("{}/auth/signup", client.baseurl,);
             let request = client
                 .client
-                .get(url)
+                .post(url)
                 .header(
                     reqwest::header::ACCEPT,
                     reqwest::header::HeaderValue::from_static("application/json"),
                 )
+                .json(&body)
                 .build()?;
             let result = client.client.execute(request).await;
             let response = result?;
             match response.status().as_u16() {
                 200u16 => ResponseValue::from_response(response).await,
-                401u16 => Err(Error::ErrorResponse(ResponseValue::empty(response))),
                 404u16 => Err(Error::ErrorResponse(ResponseValue::empty(response))),
                 _ => Err(Error::UnexpectedResponse(response)),
             }
@@ -475,5 +493,5 @@ pub mod builder {
 }
 pub mod prelude {
     pub use super::Client;
-    pub use super::ClientArticlesExt;
+    pub use super::ClientAuthExt;
 }
