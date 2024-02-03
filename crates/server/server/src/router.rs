@@ -46,12 +46,10 @@ pub struct ApiDoc;
         schemas(
             auth::LoginRequestBody,
             auth::SignupRequestBody,
-        ),
-        responses(
             auth::AuthResponse
         ),
     ),
-    tags((name = "root"))
+    tags((name = "auth"))
 )]
 pub struct AuthDoc;
 

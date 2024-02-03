@@ -4,5 +4,8 @@ pub mod root_codegen;
 
 pub use codegen::types;
 pub use codegen::{Client, ClientArticlesExt};
-pub use root_codegen::types as rtypes;
-pub use root_codegen::Client as RootClient;
+pub use root_codegen::types as auth_types;
+pub use root_codegen::{Client as AuthClient, ClientAuthExt};
+
+// re-export
+pub use progenitor::progenitor_client::Error;

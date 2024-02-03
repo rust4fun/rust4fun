@@ -21,7 +21,7 @@ paths:
         required: true
       responses:
         '200':
-          description: get article records
+          description: login
           content:
             application/json:
               schema:
@@ -50,6 +50,13 @@ paths:
           description: not found
 components:
   schemas:
+    AuthResponse:
+      type: object
+      required:
+      - token
+      properties:
+        token:
+          type: string
     LoginRequestBody:
       type: object
       required:
@@ -73,17 +80,5 @@ components:
           nullable: true
         password:
           type: string
-  responses:
-    AuthResponse:
-      description: ''
-      content:
-        application/json:
-          schema:
-            type: object
-            required:
-            - token
-            properties:
-              token:
-                type: string
 tags:
-- name: api
+- name: auth

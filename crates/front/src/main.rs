@@ -1,17 +1,12 @@
 mod api;
-mod component;
+mod app;
+mod auth;
+pub mod component;
+mod pages;
+mod router;
+mod store;
 
-use component::Initial;
-use yew::prelude::*;
-
-#[function_component(App)]
-fn app() -> Html {
-    html! {
-        <div>
-            <Initial />
-        </div>
-    }
-}
+use app::App;
 
 fn main() {
     wasm_logger::init(wasm_logger::Config::default());
