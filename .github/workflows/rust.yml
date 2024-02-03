@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ main, develop ]
 
+env:
+  API_URL: ""
+  AUTH_URL: ""
+
 jobs:
   rustfmt:
     name: fmt
