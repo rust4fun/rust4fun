@@ -1,8 +1,8 @@
 use yew::prelude::*;
 use yew_bootstrap::component::{BrandType, NavBar, NavItem};
 
-#[function_component(Index)]
-pub fn index() -> Html {
+#[function_component(IndexPage)]
+pub fn index_page() -> Html {
     let brand = BrandType::BrandSimple {
         text: AttrValue::from("Rust4Fun"),
         url: Some(AttrValue::from("https://rust4fun.shuttleapp.rs/")),

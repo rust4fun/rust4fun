@@ -1,7 +1,7 @@
 use rust_study_client as client;
 
 pub use client::types;
-pub use client::{Client, ClientArticlesExt};
+pub use client::{Client, ClientArticlesExt, ClientRootExt};
 
 use reqwest::header::{HeaderMap, AUTHORIZATION};
 

@@ -65,6 +65,22 @@ paths:
           description: unauhtorization
         '404':
           description: not found
+  /api/v1/me:
+    get:
+      tags:
+      - root
+      operationId: me
+      responses:
+        '200':
+          description: get me
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: unauhtorization
+        '404':
+          description: not found
 components:
   schemas:
     Article:
@@ -94,6 +110,12 @@ components:
       properties:
         url:
           type: string
+    User:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
   securitySchemes:
     token:
       type: http

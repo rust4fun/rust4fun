@@ -1,5 +1,5 @@
 #[cfg(feature = "openapi")]
-use rust_study_shared::Article;
+use rust_study_shared::{Article, User};
 
 pub mod api;
 pub mod auth;
@@ -21,9 +21,11 @@ use utoipa::{
         api::articles::get_item,
         api::articles::create,
         api::articles::list,
+        api::root::me,
     ),
     components(schemas(
         Article,
+        User,
         api::articles::RequestBody
     )),
     modifiers(&Security),
@@ -46,7 +48,7 @@ pub struct ApiDoc;
         schemas(
             auth::LoginRequestBody,
             auth::SignupRequestBody,
-            auth::AuthResponse
+            auth::AuthResponse,
         ),
     ),
     tags((name = "auth"))

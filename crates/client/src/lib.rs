@@ -3,7 +3,7 @@ pub mod codegen;
 pub mod root_codegen;
 
 pub use codegen::types;
-pub use codegen::{Client, ClientArticlesExt};
+pub use codegen::{Client, ClientArticlesExt, ClientRootExt};
 pub use root_codegen::types as auth_types;
 pub use root_codegen::{Client as AuthClient, ClientAuthExt};
 
