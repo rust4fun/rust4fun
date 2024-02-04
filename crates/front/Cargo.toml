@@ -7,14 +7,26 @@ edition.workspace = true
 rust-version.workspace = true
 
 [dependencies]
+gloo = { workspace = true }
 web-sys = { workspace = true }
 log = { workspace = true }
 reqwest = { workspace = true, features = [ "json" ] }
+thiserror = { workspace = true }
 wasm-bindgen-futures =  { workspace = true }
 wasm-bindgen = { workspace = true }
 wasm-logger = { workspace = true }
 yew = { workspace = true, features = ["csr"] }
+yew-router = { workspace = true }
+yewdux =  { workspace = true }
+
+# UI
 yew-bootstrap = { workspace = true }
+yew_icons = { workspace = true, features = [
+    # https://finnbear.github.io/yew_icons/
+    "BootstrapEnvelopeAtFill", 
+    "FontAwesomeSolidKey", 
+    "FontAwesomeSolidUserLarge"
+]}
 
 rust-study-shared = { path = "../shared" }
 rust-study-client = { path = "../client" }

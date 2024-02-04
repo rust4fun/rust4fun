@@ -7,8 +7,8 @@ use yew_bootstrap::component::card::*;
 use yew_bootstrap::component::*;
 use yew_bootstrap::util::Color;
 
-#[function_component(Initial)]
-pub fn initial() -> Html {
+#[function_component(Dashboard)]
+pub fn dashboard() -> Html {
     let art = use_state(Vec::new);
 
     let art_clone = art.clone();

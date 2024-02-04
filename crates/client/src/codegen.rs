@@ -98,6 +98,39 @@ pub mod types {
             Default::default()
         }
     }
+    ///User
+    ///
+    /// <details><summary>JSON schema</summary>
+    ///
+    /// ```json
+    /**{
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    }*/
+    /// ```
+    /// </details>
+    #[derive(Clone, Debug, Deserialize, Serialize)]
+    pub struct User {
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        pub name: Option<String>,
+    }
+    impl From<&User> for User {
+        fn from(value: &User) -> Self {
+            value.clone()
+        }
+    }
+    impl User {
+        pub fn builder() -> builder::User {
+            Default::default()
+        }
+    }
     pub mod builder {
         #[derive(Clone, Debug)]
         pub struct Article {
@@ -227,6 +260,42 @@ pub mod types {
                 Self { url: Ok(value.url) }
             }
         }
+        #[derive(Clone, Debug)]
+        pub struct User {
+            name: Result<Option<String>, String>,
+        }
+        impl Default for User {
+            fn default() -> Self {
+                Self {
+                    name: Ok(Default::default()),
+                }
+            }
+        }
+        impl User {
+            pub fn name<T>(mut self, value: T) -> Self
+            where
+                T: std::convert::TryInto<Option<String>>,
+                T::Error: std::fmt::Display,
+            {
+                self.name = value
+                    .try_into()
+                    .map_err(|e| format!("error converting supplied value for name: {}", e));
+                self
+            }
+        }
+        impl std::convert::TryFrom<User> for super::User {
+            type Error = String;
+            fn try_from(value: User) -> Result<Self, String> {
+                Ok(Self { name: value.name? })
+            }
+        }
+        impl From<super::User> for User {
+            fn from(value: super::User) -> Self {
+                Self {
+                    name: Ok(value.name),
+                }
+            }
+        }
     }
 }
 #[derive(Clone, Debug)]
@@ -324,6 +393,21 @@ impl ClientArticlesExt for Client {
     }
     fn get_item(&self) -> builder::GetItem {
         builder::GetItem::new(self)
+    }
+}
+pub trait ClientRootExt {
+    /**Sends a `GET` request to `/api/v1/me`
+
+    ```ignore
+    let response = client.me()
+        .send()
+        .await;
+    ```*/
+    fn me(&self) -> builder::Me;
+}
+impl ClientRootExt for Client {
+    fn me(&self) -> builder::Me {
+        builder::Me::new(self)
     }
 }
 pub mod builder {
@@ -472,8 +556,42 @@ pub mod builder {
             }
         }
     }
+    /**Builder for [`ClientRootExt::me`]
+
+    [`ClientRootExt::me`]: super::ClientRootExt::me*/
+    #[derive(Debug, Clone)]
+    pub struct Me<'a> {
+        client: &'a super::Client,
+    }
+    impl<'a> Me<'a> {
+        pub fn new(client: &'a super::Client) -> Self {
+            Self { client: client }
+        }
+        ///Sends a `GET` request to `/api/v1/me`
+        pub async fn send(self) -> Result<ResponseValue<types::User>, Error<()>> {
+            let Self { client } = self;
+            let url = format!("{}/api/v1/me", client.baseurl,);
+            let request = client
+                .client
+                .get(url)
+                .header(
+                    reqwest::header::ACCEPT,
+                    reqwest::header::HeaderValue::from_static("application/json"),
+                )
+                .build()?;
+            let result = client.client.execute(request).await;
+            let response = result?;
+            match response.status().as_u16() {
+                200u16 => ResponseValue::from_response(response).await,
+                401u16 => Err(Error::ErrorResponse(ResponseValue::empty(response))),
+                404u16 => Err(Error::ErrorResponse(ResponseValue::empty(response))),
+                _ => Err(Error::UnexpectedResponse(response)),
+            }
+        }
+    }
 }
 pub mod prelude {
     pub use super::Client;
     pub use super::ClientArticlesExt;
+    pub use super::ClientRootExt;
 }
