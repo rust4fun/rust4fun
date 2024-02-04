@@ -21,7 +21,9 @@ jobs:
         crate: cargo-make
 
     - name: Build frontend
-      run: cargo make build-yew
+      # TODO: ここの環境変数の渡し方がめんどくさい
+      run: |
+        AUTH_URL=${{ vars.AUTH_URL }} API_URL=${{ vars.API_URL }} cargo make build-yew
 
     - name: Deploy shuttle
       uses: shuttle-hq/deploy-action@main
@@ -29,3 +31,6 @@ jobs:
         deploy-key: ${{ secrets.SHUTTLE_API_KEY }}
         allow-dirty: "true"
         no-test: "true"
+        secrets: |
+          AUTH_SECRET = "${{ secrets.AUTH_SECRET }}"
+          DB_SECRET = "${{ secrets.DB_SECRET }}"

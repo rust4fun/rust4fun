@@ -21,4 +21,5 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - run: cargo clippy
+      # TODO: 上の [environment: develop] でセットされてない？ ここの環境変数の渡し方がめんどくさい
+      - run: API_URL="" AUTH_URL="" cargo clippy
