@@ -8,15 +8,17 @@ rust-version.workspace = true
 
 [dependencies]
 anyhow ={ workspace = true }
-axum = { workspace = true }
+axum = { workspace = true, features = [ "ws" ]}
 axum-extra = { workspace = true, features = [ "typed-header" ]}
 chrono = { workspace = true, features = [ "serde" ] }
+derive-new = { workspace = true }
 shuttle-axum = { workspace = true }
 shuttle-runtime = { workspace = true }
 shuttle-shared-db = { workspace = true }
 shuttle-secrets = { workspace = true }
 sqlx = { workspace = true, default-features = false, features = [ "runtime-tokio", "postgres" ] }
 serde = { workspace = true }
+serde_json = { workspace = true }
 tokio = { workspace = true }
 tower-http = { workspace = true, features = [ "trace", "fs", "cors" ] }
 thiserror = { workspace = true }
@@ -25,6 +27,8 @@ tracing-subscriber = { workspace = true, default-features = false }
 uuid = { workspace = true, features = [ "v4" ] }
 utoipa = { workspace = true, features = [ "yaml", "uuid" ] }
 webpage = { workspace = true }
+futures = { workspace = true }
+futures-util = { workspace = true }
 
 rust-study-auth = { path = "../auth" }
 rust-study-shared = { path = "../../shared" }

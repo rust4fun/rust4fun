@@ -4,73 +4,70 @@ use crate::error::Error;
 use crate::DbConnector;
 use chrono::NaiveDateTime;
 use derive_new::new;
-use shared::{ArticleId, UserId};
+use serde::Serialize;
+use shared::{ChatRoomId, UserId};
 use std::sync::Arc;
 
-#[derive(Debug, sqlx::FromRow)]
-pub struct ArticleEntity {
-    pub id: ArticleId,
-    pub url: String,
-    pub title: Option<String>,
+#[derive(Debug, sqlx::FromRow, Serialize)]
+pub struct ChatRoomEntity {
+    pub id: ChatRoomId,
+    pub name: String,
     pub description: Option<String>,
-    pub image_url: String,
-    pub registered_by: UserId,
+    pub created_by: UserId,
     pub created_at: NaiveDateTime,
     pub updated_at: NaiveDateTime,
 }
 
 #[derive(Debug, new)]
-pub struct InputArticleEntity {
-    pub url: String,
-    pub title: Option<String>,
+pub struct InputChatRoomEntity {
+    pub name: String,
     pub description: Option<String>,
-    pub image_url: String,
-    pub registered_by: UserId,
+    pub created_by: UserId,
+    pub created_at: NaiveDateTime,
 }
 
-pub struct ArticleRepository(Arc<DbConnector>);
+pub struct ChatRoomRepository(Arc<DbConnector>);
 
-impl ArticleRepository {
+impl ChatRoomRepository {
     pub fn new(db: Arc<DbConnector>) -> Self {
         Self(db)
     }
 
-    pub async fn create(&self, id: ArticleId, input: InputArticleEntity) -> Result<(), Error> {
+    pub async fn create(&self, id: ChatRoomId, input: InputChatRoomEntity) -> Result<(), Error> {
         let pool = self.0.get_pool();
 
         let res = sqlx::query!(
             r#"
-                INSERT INTO articles
-                    (id, url, title, description, image_url, registered_by)
+                INSERT INTO chat_rooms
+                    (id, name, description, created_by, created_at)
                 values
-                    ($1::UUID, $2, $3, $4, $5, $6::UUID)
+                    ($1::UUID, $2, $3, $4::UUID, $5)
             "#,
             id.id(),
-            input.title,
-            input.url,
+            input.name,
             input.description,
-            input.image_url,
-            input.registered_by.id()
+            input.created_by.id(),
+            input.created_at,
         )
         .execute(&pool)
         .await
         .map_err(Error::Database)?;
 
         if res.rows_affected() == 0 {
-            return Err(Error::AlreadyExsited("articles".into()));
+            return Err(Error::AlreadyExsited("chat_rooms".into()));
         }
 
         Ok(())
     }
 
-    pub async fn find_by_id(&self, id: ArticleId) -> Result<ArticleEntity, Error> {
+    pub async fn find_by_id(&self, id: ChatRoomId) -> Result<ChatRoomEntity, Error> {
         let pool = self.0.get_pool();
 
         let article = sqlx::query_as!(
-            ArticleEntity,
+            ChatRoomEntity,
             r#"
                 SELECT *
-                FROM articles
+                FROM chat_rooms
                 WHERE id = $1::UUID
             "#,
             id.id()
@@ -82,17 +79,20 @@ impl ArticleRepository {
         Ok(article)
     }
 
-    pub async fn list_by_user(&self, user_id: UserId) -> Result<Vec<ArticleEntity>, Error> {
+    pub async fn list_by_created_by(
+        &self,
+        created_by: UserId,
+    ) -> Result<Vec<ChatRoomEntity>, Error> {
         let pool = self.0.get_pool();
 
         let articles = sqlx::query_as!(
-            ArticleEntity,
+            ChatRoomEntity,
             r#"
                 SELECT *
-                FROM articles
-                WHERE registered_by = $1::UUID
+                FROM chat_rooms
+                WHERE created_by = $1::UUID
             "#,
-            user_id.id()
+            created_by.id()
         )
         .fetch_all(&pool)
         .await

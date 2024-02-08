@@ -1,4 +1,3 @@
-#[cfg(feature = "openapi")]
 use rust_study_shared::{Article, User};
 
 pub mod api;
@@ -21,7 +20,7 @@ use utoipa::{
         api::articles::get_item,
         api::articles::create,
         api::articles::list,
-        api::root::me,
+        api::root::me::handler,
     ),
     components(schemas(
         Article,

@@ -60,7 +60,7 @@ pub async fn create(
         .unwrap_or("https://www.rust-lang.org/static/images/rust-social-wide.jpg".to_string());
 
     let repo = db::ArticleRepository::new(state.db());
-    let id = db::ArticleId::new_v4();
+    let id = shared::ArticleId::new_v4();
     let input = db::InputArticleEntity::new(
         body.url,
         html.title,

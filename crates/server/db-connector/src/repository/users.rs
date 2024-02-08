@@ -1,22 +1,25 @@
+use rust_study_shared as shared;
+
 use crate::error::Error;
-use crate::types::UserId;
 use crate::DbConnector;
 use derive_new::new;
+use shared::UserId;
 use std::sync::Arc;
 
+#[derive(Debug)]
 pub struct UserEntity {
     pub id: UserId,
     pub name: Option<String>,
 }
 
-#[derive(new)]
+#[derive(Debug, new)]
 pub struct InputUserEntity {
     pub name: Option<String>,
     pub email: String,
     pub password: String,
 }
 
-#[derive(new)]
+#[derive(Debug, new)]
 pub struct InputUserValidateEntity {
     pub email: String,
     pub password: String,

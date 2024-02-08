@@ -1,4 +1,4 @@
-use crate::pages::{DashboardPage, IndexPage, LoginPage, SignupPage};
+use crate::pages::{ChatPage, DashboardPage, IndexPage, LoginPage, SignupPage};
 
 use yew::prelude::*;
 use yew_router::prelude::*;
@@ -13,6 +13,8 @@ pub enum Route {
     LoginPage,
     #[at("/dashboard")]
     Dashboard,
+    #[at("/chat")]
+    Chat,
 }
 
 pub fn switch(routes: Route) -> Html {
@@ -21,5 +23,6 @@ pub fn switch(routes: Route) -> Html {
         Route::Signup => html! {<SignupPage /> },
         Route::LoginPage => html! {<LoginPage /> },
         Route::Dashboard => html! {<DashboardPage />},
+        Route::Chat => html! {<ChatPage />},
     }
 }

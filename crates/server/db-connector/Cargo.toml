@@ -9,7 +9,10 @@ rust-version.workspace = true
 [dependencies]
 chrono = { workspace = true }
 derive-new = { workspace = true }
+serde = { workspace = true }
 sqlx = { workspace = true, default-features = false, features = [ "runtime-tokio", "postgres", "uuid", "chrono", "migrate" ] }
 thiserror = { workspace = true }
 uuid = { workspace = true, features = [ "v4" ] }
 tracing = { workspace = true }
+
+rust-study-shared = { path = "../../shared" }

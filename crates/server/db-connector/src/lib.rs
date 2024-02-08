@@ -1,11 +1,13 @@
 mod error;
 mod repository;
-mod types;
 
-pub use repository::{ArticleEntity, ArticleRepository, InputArticleEntity};
-pub use repository::{InputUserEntity, InputUserValidateEntity, UserEntity, UserRepository};
-
-pub use types::{ArticleId, UserId};
+pub use repository::articles::{ArticleEntity, ArticleRepository, InputArticleEntity};
+pub use repository::chat_members::{ChatMemberEntity, ChatMemberRepository, InputChatMemberEntity};
+pub use repository::chat_messages::{
+    ChatMessageEntity, ChatMessageRepository, InputChatMessageEntity,
+};
+pub use repository::chat_rooms::{ChatRoomEntity, ChatRoomRepository, InputChatRoomEntity};
+pub use repository::users::{InputUserEntity, InputUserValidateEntity, UserEntity, UserRepository};
 
 pub use error::Error;
 use sqlx::PgPool;
