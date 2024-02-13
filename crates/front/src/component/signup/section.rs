@@ -1,5 +1,6 @@
 use super::form::SignupFrom;
 use crate::auth::{AuthClientError, AuthRequester, AuthResponse};
+use crate::provider::AuthStore;
 use crate::router::Route;
 use gloo::storage::{LocalStorage, Storage};
 use std::ops::Deref;
@@ -8,6 +9,7 @@ use yew::prelude::*;
 use yew_bootstrap::component::{Column, Container, Row};
 use yew_router::hooks::use_navigator;
 use yew_router::navigator::Navigator;
+use yewdux::{use_store, Dispatch};
 
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct User {
@@ -23,12 +25,13 @@ pub fn signup_section() -> Html {
     // definition
     let user = use_state(User::default);
     let navigator = use_navigator().unwrap();
+    let (_, dispatch) = use_store::<AuthStore>();
 
     // handler
     let handle_name_input = input_user_callback("name", user.clone());
     let handle_email_input = input_user_callback("email", user.clone());
     let handle_password_input = input_user_callback("password", user.clone());
-    let onclick = onclick_callback(user.clone(), navigator.clone());
+    let onclick = onclick_callback(user.clone(), navigator.clone(), dispatch.clone());
 
     // view
     html! {
@@ -74,11 +77,16 @@ fn input_user_callback(name: &'static str, user: UseStateHandle<User>) -> Callba
     })
 }
 
-fn onclick_callback(user: UseStateHandle<User>, navigator: Navigator) -> Callback<MouseEvent> {
+fn onclick_callback(
+    user: UseStateHandle<User>,
+    navigator: Navigator,
+    dispatch: Dispatch<AuthStore>,
+) -> Callback<MouseEvent> {
     Callback::from({
         move |_: MouseEvent| {
             let cloned_state = user.clone();
             let cloned_navigator = navigator.clone();
+            let cloned_dispatch = dispatch.clone();
 
             spawn_local(async move {
                 let res = signup((*cloned_state).clone()).await;
@@ -86,6 +94,7 @@ fn onclick_callback(user: UseStateHandle<User>, navigator: Navigator) -> Callbac
                 match res {
                     Ok(auth) => {
                         LocalStorage::set("access_token", auth.token).ok();
+                        cloned_dispatch.reduce_mut(|state| state.is_authorization = true);
                         cloned_navigator.push(&Route::Dashboard)
                     }
                     Err(e) => {

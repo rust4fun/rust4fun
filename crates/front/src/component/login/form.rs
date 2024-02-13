@@ -21,6 +21,9 @@ pub fn login_from(props: &Props) -> Html {
             <div class="d-flex justify-content-center mx-4 mb-3 mb-lg-4">
                 <Button onclick={props.onclick.clone()} text={ "Login" }/>
             </div>
+            <div class="animate-spin inline-block w-6 h-6 border-[3px] border-current border-t-transparent text-gray-400 rounded-full" role="status" aria-label="loading">
+                <span class="sr-only">{"Loading"}</span>
+            </div>
         </form>
     }
 }

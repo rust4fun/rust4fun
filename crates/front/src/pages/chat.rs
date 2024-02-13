@@ -1,4 +1,4 @@
-use crate::store::ChatStore;
+use crate::provider::ChatStore;
 use crate::ws::ChatMessage;
 use crate::WebsocketService;
 use chrono::Utc;

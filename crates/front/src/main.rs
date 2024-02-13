@@ -3,8 +3,8 @@ mod app;
 mod auth;
 pub mod component;
 mod pages;
+pub mod provider;
 mod router;
-pub mod store;
 pub mod ws;
 
 use app::App;

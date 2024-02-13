@@ -10,7 +10,7 @@ pub enum Route {
     #[at("/signup")]
     Signup,
     #[at("/login")]
-    LoginPage,
+    Login,
     #[at("/dashboard")]
     Dashboard,
     #[at("/chat")]
@@ -21,7 +21,7 @@ pub fn switch(routes: Route) -> Html {
     match routes {
         Route::Index => html! {<IndexPage /> },
         Route::Signup => html! {<SignupPage /> },
-        Route::LoginPage => html! {<LoginPage /> },
+        Route::Login => html! {<LoginPage /> },
         Route::Dashboard => html! {<DashboardPage />},
         Route::Chat => html! {<ChatPage />},
     }

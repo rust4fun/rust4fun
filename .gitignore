@@ -5,3 +5,4 @@ Secrets*.toml
 .DS_Store
 /node_modules
 /dist
+tailwind.css

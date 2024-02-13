@@ -1,4 +1,4 @@
-use crate::store::ChatStore;
+use crate::provider::ChatStore;
 use chrono::NaiveDateTime;
 use futures::{channel::mpsc::Sender, SinkExt, StreamExt};
 use gloo::net::websocket::{futures::WebSocket, Message, State};

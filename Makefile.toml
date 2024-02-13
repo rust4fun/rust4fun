@@ -41,10 +41,14 @@ command = "cargo"
 args = ["run", "--release", "--package", "rust-study-tools", "${@}"]
 
 # -- frontend
+[tasks.build-css]
+command = "npm"
+args = ["run", "build"]
+
 [tasks.build-yew]
 command = "trunk"
 args = [ "build", "./crates/front/index.html", "--release", "--dist", "${WORKSPACE_PATH}/dist" ]
-dependencies = [ "install-trunk", "install-wasm" ]
+dependencies = [ "install-trunk", "install-wasm", "build-css" ]
 
 [tasks.watch-yew]
 command = "trunk"

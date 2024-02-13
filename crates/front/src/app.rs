@@ -1,18 +1,28 @@
+use crate::component::{Footer, NavigationBar};
+use crate::provider::AuthStore;
+use crate::router::{switch, Route};
+use gloo::storage::{LocalStorage, Storage};
 use yew::prelude::*;
 use yew_router::prelude::*;
-
-use crate::router::{switch, Route};
+use yewdux::use_store;
 
 #[function_component(App)]
 pub fn app() -> Html {
+    let (_, dispatch) = use_store::<AuthStore>();
+
+    let cloned_dispatch = dispatch.clone();
+    LocalStorage::get("access_token")
+        .map(move |_: String| cloned_dispatch.reduce_mut(|s| s.is_authorization = true))
+        .map_err(|e| log::warn!("{e:?}"))
+        .ok();
+
     html! {
-        <BrowserRouter>
+        <>
+            <BrowserRouter>
+                <NavigationBar/ >
                 <Switch<Route> render={switch} />
-                // if is_page_loading {
-                //     <div class="pt-4 pl-2 top-[5.5rem] fixed">
-                //         <Spinner width={Some("1.5rem")} height={Some("1.5rem")} color="text-ct-yellow-600" />
-                //     </div>
-                // }
-        </BrowserRouter>
+            </BrowserRouter>
+            <Footer />
+        </>
     }
 }
