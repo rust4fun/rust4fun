@@ -20,15 +20,13 @@ pub async fn authorization_middleware(
     state: Extension<Arc<State>>,
     request: Request,
     next: Next,
-) -> Response {
+) -> Result<Response, Error> {
     let (mut parts, body) = request.into_parts();
-    let auth_user = AuthUser::from_request_parts(&mut parts, &state)
-        .await
-        .unwrap();
+    let auth_user = AuthUser::from_request_parts(&mut parts, &state).await?;
     let mut request = Request::from_parts(parts, body);
     request.extensions_mut().insert(auth_user.clone());
 
-    next.run(request).await
+    Ok(next.run(request).await)
 }
 
 #[async_trait]
@@ -45,17 +43,19 @@ where
         let TypedHeader(Authorization(bearer)) = parts
             .extract::<TypedHeader<Authorization<Bearer>>>()
             .await
-            .map_err(|e| tracing::error!("{e}"))
-            .unwrap();
+            .map_err(|e| Error::RequiredAuthorization(e.to_string()))?;
 
         // JWT の検証
         let jwt = auth::JWT::new(bearer.token().to_owned());
-        let claims = jwt.validate("http::/localhost:8080/api/v1").unwrap();
+        let claims = jwt.validate("http::/localhost:8080/api/v1")?;
 
         // ユーザーの存在確認
         let db = app_state.db();
         let repo = db::UserRepository::new(db);
-        let user = repo.find_by_id(claims.sub().into()).await?;
+        let user = repo
+            .find_by_id(claims.sub().into())
+            .await
+            .map_err(|e| Error::RequiredAuthorization(e.to_string()))?;
 
         Ok((user, claims).into())
     }

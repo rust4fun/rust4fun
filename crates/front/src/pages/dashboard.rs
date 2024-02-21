@@ -1,33 +1,16 @@
-use std::ops::Deref;
-
-use crate::api::{ApiRequester, ClientRootExt};
-use gloo::storage::{LocalStorage, Storage};
-use wasm_bindgen_futures::spawn_local;
+use crate::provider::AuthStore;
 use yew::prelude::*;
+use yewdux::use_store;
 
 #[function_component(DashboardPage)]
 pub fn dashboard_page() -> Html {
-    // definition
-    let name = use_state(String::default);
-
-    // handler
-    let cloned_name = name.clone();
-    use_effect_with((), move |_| {
-        spawn_local(async move {
-            let token: String = LocalStorage::get("access_token").ok().unwrap();
-
-            let requester = ApiRequester::new(&token);
-            let res = requester.client().me().send().await.unwrap();
-
-            cloned_name.set(res.name.clone().unwrap())
-        });
-    });
+    let (store, _) = use_store::<AuthStore>();
 
     html! {
       <>
-      <center>
-        <p>{format!("Hello {}", name.deref())}</p>
-      </center>
+        <div class="grid place-items-center h-screen p-4 bg-gradient-to-bl from-gray-100 to-gray-300">
+        {store.user.as_ref().map(|x| x.name.clone()).unwrap_or_default()}
+        </div>
       </>
     }
 }

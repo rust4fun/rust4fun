@@ -6,5 +6,6 @@ edition = "2021"
 [dependencies]
 derive-new = { workspace = true }
 serde = { workspace = true }
+sqlx = { workspace = true, default-features = false, features = [ "postgres", "macros" ] }
 uuid = { workspace = true, features = [ "v4", "serde" ] }
-utoipa = { workspace = true }
+utoipa = { workspace = true}

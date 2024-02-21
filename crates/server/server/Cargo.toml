@@ -16,7 +16,7 @@ shuttle-axum = { workspace = true }
 shuttle-runtime = { workspace = true }
 shuttle-shared-db = { workspace = true }
 shuttle-secrets = { workspace = true }
-sqlx = { workspace = true, default-features = false, features = [ "runtime-tokio", "postgres" ] }
+sqlx = { workspace = true, default-features = false, features = [ "runtime-tokio", "postgres", "macros" ] }
 serde = { workspace = true }
 serde_json = { workspace = true }
 tokio = { workspace = true }

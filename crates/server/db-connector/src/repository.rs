@@ -1,5 +1,13 @@
 pub mod articles;
-pub mod chat_members;
-pub mod chat_messages;
-pub mod chat_rooms;
+pub mod planet_members;
+pub mod planets;
+pub mod spheres;
 pub mod users;
+
+use derive_new::new;
+
+#[derive(Debug, new)]
+pub struct Pagination {
+    pub limit: i64,
+    pub offset: i64,
+}

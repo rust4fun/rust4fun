@@ -13,29 +13,29 @@ use axum_extra::TypedHeader;
 use chrono::NaiveDateTime;
 use futures::{sink::SinkExt, stream::StreamExt};
 use serde::{Deserialize, Serialize};
-use shared::ChatRoomId;
+use shared::PlanetId;
 use std::collections::HashMap;
 use std::ops::ControlFlow;
 use std::sync::Arc;
 use tokio::sync::broadcast;
 
 #[derive(Default)]
-pub struct ChatRooms(HashMap<ChatRoomId, ChatRoom>);
+pub struct ChatRooms(HashMap<PlanetId, Channel>);
 
 impl ChatRooms {
-    pub fn inner(&self) -> &HashMap<ChatRoomId, ChatRoom> {
+    pub fn inner(&self) -> &HashMap<PlanetId, Channel> {
         &self.0
     }
 
-    pub fn inner_mut(&mut self) -> &mut HashMap<ChatRoomId, ChatRoom> {
+    pub fn inner_mut(&mut self) -> &mut HashMap<PlanetId, Channel> {
         &mut self.0
     }
 }
 
 #[derive(Clone)]
-pub struct ChatRoom(broadcast::Sender<String>);
+pub struct Channel(broadcast::Sender<String>);
 
-impl ChatRoom {
+impl Channel {
     pub fn new(broadcaster: broadcast::Sender<String>) -> Self {
         Self(broadcaster)
     }
@@ -80,7 +80,7 @@ async fn ws_handler(
     ws: WebSocketUpgrade,
     user_agent: Option<TypedHeader<UserAgent>>,
     Extension(state): Extension<Arc<State>>,
-    Path(chat_group_id): Path<ChatRoomId>,
+    Path(planet_id): Path<PlanetId>,
 ) -> impl IntoResponse {
     let user_agent = if let Some(TypedHeader(user_agent)) = user_agent {
         user_agent.to_string()
@@ -89,10 +89,10 @@ async fn ws_handler(
     };
     tracing::info!("`{user_agent}` connected.");
 
-    ws.on_upgrade(move |socket| handle_socket(socket, state, chat_group_id))
+    ws.on_upgrade(move |socket| handle_socket(socket, state, planet_id))
 }
 
-async fn handle_socket(socket: WebSocket, state: Arc<State>, gid: ChatRoomId) {
+async fn handle_socket(socket: WebSocket, state: Arc<State>, planet_id: PlanetId) {
     let (mut sender, mut receiver) = socket.split();
 
     // connected message を送る
@@ -105,12 +105,12 @@ async fn handle_socket(socket: WebSocket, state: Arc<State>, gid: ChatRoomId) {
     let chat_room = {
         let mut rooms = rooms.lock().await;
         tracing::debug!("chat room length {}", rooms.0.len());
-        match rooms.0.get(&gid) {
+        match rooms.0.get(&planet_id) {
             Some(v) => v.clone(),
             None => {
                 let (tx, _) = broadcast::channel(10);
-                let chat_room = ChatRoom::new(tx);
-                rooms.0.insert(gid, chat_room.clone());
+                let chat_room = Channel::new(tx);
+                rooms.0.insert(planet_id, chat_room.clone());
                 chat_room
             }
         }

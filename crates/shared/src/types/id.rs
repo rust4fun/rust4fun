@@ -40,15 +40,15 @@ impl ArticleId {
 }
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Deserialize, Serialize, Hash)]
-pub struct ChatMessageId(Uuid);
+pub struct SphereId(Uuid);
 
-impl From<Uuid> for ChatMessageId {
+impl From<Uuid> for SphereId {
     fn from(id: Uuid) -> Self {
         Self(id)
     }
 }
 
-impl ChatMessageId {
+impl SphereId {
     pub fn id(self) -> Uuid {
         self.0
     }
@@ -59,15 +59,34 @@ impl ChatMessageId {
 }
 
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Deserialize, Serialize, Hash)]
-pub struct ChatRoomId(Uuid);
+pub struct PlanetId(Uuid);
 
-impl From<Uuid> for ChatRoomId {
+impl From<Uuid> for PlanetId {
     fn from(id: Uuid) -> Self {
         Self(id)
     }
 }
 
-impl ChatRoomId {
+impl PlanetId {
+    pub fn id(self) -> Uuid {
+        self.0
+    }
+
+    pub fn new_v4() -> Self {
+        Self(Uuid::new_v4())
+    }
+}
+
+#[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Deserialize, Serialize, Hash)]
+pub struct PlanetMessageId(Uuid);
+
+impl From<Uuid> for PlanetMessageId {
+    fn from(id: Uuid) -> Self {
+        Self(id)
+    }
+}
+
+impl PlanetMessageId {
     pub fn id(self) -> Uuid {
         self.0
     }

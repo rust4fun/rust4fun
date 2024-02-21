@@ -9,6 +9,7 @@ rust-version.workspace = true
 [dependencies]
 chrono = { workspace = true, features = [ "serde" ] }
 gloo = { workspace = true }
+garde = { workspace = true, features = [ "derive", "email" ] }
 web-sys = { workspace = true }
 log = { workspace = true }
 reqwest = { workspace = true, features = [ "json" ] }
@@ -19,19 +20,8 @@ wasm-logger = { workspace = true }
 yew = { workspace = true, features = ["csr"] }
 yew-router = { workspace = true }
 yewdux =  { workspace = true }
-yew-agent = "0.3.0"
 futures = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 
-# UI
-yew-bootstrap = { workspace = true }
-yew_icons = { workspace = true, features = [
-    # https://finnbear.github.io/yew_icons/
-    "BootstrapEnvelopeAtFill", 
-    "FontAwesomeSolidKey", 
-    "FontAwesomeSolidUserLarge"
-]}
-
-rust-study-shared = { path = "../shared" }
 rust-study-client = { path = "../client" }

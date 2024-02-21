@@ -1,20 +1,24 @@
-use super::form::LoginFrom;
 use crate::auth::{AuthClientError, AuthRequester, AuthResponse};
+use crate::component::common::{AuthFrom, InputField, Toast, ToastLevel};
 use crate::provider::AuthStore;
 use crate::router::Route;
+use garde::Validate;
 use gloo::storage::{LocalStorage, Storage};
 use std::ops::Deref;
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
-use yew_bootstrap::component::{Column, Container, Row};
 use yew_router::hooks::use_navigator;
 use yew_router::navigator::Navigator;
 use yewdux::{use_store, Dispatch};
 
+#[derive(Debug, Default, PartialEq, Clone, Validate)]
+#[garde(transparent)]
+pub struct UserEmail(#[garde(email)] pub String);
+
 #[derive(Debug, Default, PartialEq, Clone)]
 pub struct UserLogin {
-    email: String,
-    password: String,
+    pub email: UserEmail,
+    pub password: String,
 }
 
 /// 参照元
@@ -23,42 +27,48 @@ pub struct UserLogin {
 pub fn login_section() -> Html {
     // definition
     let user = use_state(UserLogin::default);
+    let is_valid_email = use_state(|| true);
+    let invalid_email_message = use_state(String::default);
+    let is_show_toast = use_state(|| false);
     let navigator = use_navigator().unwrap();
     let (_, dispatch) = use_store::<AuthStore>();
 
     // handler
     let handle_email_input = input_user_callback("email", user.clone());
     let handle_password_input = input_user_callback("password", user.clone());
-    let onclick = onclick_callback(user.clone(), navigator.clone(), dispatch.clone());
+    let onclick = onclick_callback(
+        user.clone(),
+        navigator.clone(),
+        dispatch.clone(),
+        is_valid_email.clone(),
+        invalid_email_message.clone(),
+        is_show_toast.clone(),
+    );
 
     // view
     html! {
-        <section class="vh-100" style="background-color: #eee;">
-        <Container class="h-100">
-          <Row class="d-flex justify-content-center align-items-center h-100">
-            <Column lg=10 xl=11>
-              <div class="card text-black" style="border-radius: 25px;">
-                <div class="card-body p-md-5">
-                  <Row class="justify-content-center">
-                    <Column md=10 lg=6 xl=7 class="d-flex align-items-center order-2 order-lg-1">
-                        <img src="assets/logo-card.png" class="img-fluid" alt="Logo Card"/>
-                    </Column>
-                    <Column  md=10 lg=8 xl=5 class="order-1 order-lg-2">
-                        <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">{"Login"}</p>
-                        <LoginFrom
-                            onclick={onclick}
-                            input_email={handle_email_input.clone()}
-                            input_password={handle_password_input.clone()}
-                        />
-                    </Column>
-
-                  </Row>
+        <>
+            <div class="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
+                <div class="mx-auto max-w-lg text-center">
+                    <h1 class="text-2xl font-bold sm:text-3xl">{"Login"}</h1>
                 </div>
-              </div>
-            </Column>
-          </Row>
-        </Container>
-      </section>
+                <AuthFrom onclick={onclick} is_login=true label="Login">
+                    <InputField
+                        input_type="email"
+                        label="Email"
+                        input={handle_email_input.clone()}
+                        is_valid={is_valid_email.clone()}
+                        invalid_message={invalid_email_message}
+                    />
+                    <InputField
+                        input_type="password"
+                        label="Password"
+                        input={handle_password_input.clone()}
+                    />
+                </AuthFrom>
+            </div>
+            <Toast is_show={is_show_toast} message={"Invalid email or password!"} level={ToastLevel::Error}/>
+        </>
     }
 }
 
@@ -66,7 +76,7 @@ fn input_user_callback(name: &'static str, user: UseStateHandle<UserLogin>) -> C
     Callback::from(move |value| {
         let mut data = user.deref().clone();
         match name {
-            "email" => data.email = value,
+            "email" => data.email = UserEmail(value),
             "password" => data.password = value,
             _ => (),
         }
@@ -78,32 +88,44 @@ fn onclick_callback(
     user: UseStateHandle<UserLogin>,
     navigator: Navigator,
     dispatch: Dispatch<AuthStore>,
+    is_valid_email: UseStateHandle<bool>,
+    invalid_em_msg: UseStateHandle<String>,
+    is_show_toast: UseStateHandle<bool>,
 ) -> Callback<MouseEvent> {
     Callback::from({
         move |_: MouseEvent| {
-            let cloned_state = user.clone();
-            let cloned_navigator = navigator.clone();
-            let cloned_dispatch = dispatch.clone();
+            if user.email.validate(&()).is_err() {
+                is_valid_email.set(false);
+                invalid_em_msg.set("invalid email!".into())
+            } else {
+                is_valid_email.set(true);
+            }
 
-            spawn_local(async move {
-                let res = login((*cloned_state).clone()).await;
+            if *is_valid_email {
+                let cloned_state = user.clone();
+                let cloned_navigator = navigator.clone();
+                let cloned_dispatch = dispatch.clone();
+                let is_show_toast = is_show_toast.clone();
+                spawn_local(async move {
+                    let res = login((*cloned_state).clone()).await;
 
-                match res {
-                    Ok(auth) => {
-                        LocalStorage::set("access_token", auth.token).ok();
-                        cloned_dispatch.reduce_mut(|state| state.is_authorization = true);
-                        cloned_navigator.push(&Route::Dashboard)
+                    match res {
+                        Ok(auth) => {
+                            LocalStorage::set("access_token", auth.token).ok();
+                            cloned_dispatch.reduce_mut(|state| state.is_authorization = true);
+                            cloned_navigator.push(&Route::Dashboard)
+                        }
+                        Err(_) => {
+                            is_show_toast.set(true);
+                        }
                     }
-                    Err(e) => {
-                        log::error!("{e:?}")
-                    }
-                }
-            })
+                })
+            }
         }
     })
 }
 
 async fn login(user: UserLogin) -> Result<AuthResponse, AuthClientError> {
     let requester = AuthRequester::new();
-    requester.login(user.email, user.password).await
+    requester.login(user.email.0, user.password).await
 }

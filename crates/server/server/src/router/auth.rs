@@ -47,7 +47,10 @@ pub async fn login(
     let repo = db::UserRepository::new(state.db());
 
     let input = db::InputUserValidateEntity::new(body.email, body.password);
-    let user = repo.validate_and_get(input).await?;
+    let user = repo
+        .validate_and_get(input)
+        .await
+        .map_err(|_| Error::NotFound("user".into()))?;
 
     let token = auth::JWT::create(
         "http::/localhost:8080/".to_string(),

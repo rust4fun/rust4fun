@@ -6,6 +6,13 @@ use thiserror::Error;
 pub enum Error {
     #[error("bad request: {0}")]
     BadRequest(String),
+
+    #[error("not found")]
+    NotFound,
+
+    #[error("unexpected")]
+    Unexpected,
+
     #[error("client: {0}")]
     Client(#[from] client::Error),
 }

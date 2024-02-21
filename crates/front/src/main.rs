@@ -5,6 +5,7 @@ pub mod component;
 mod pages;
 pub mod provider;
 mod router;
+pub mod utils;
 pub mod ws;
 
 use app::App;

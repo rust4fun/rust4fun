@@ -12,7 +12,5 @@ progenitor = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 uuid = { workspace = true, features = [ "v4", "serde" ] }
 
-rust-study-shared = { path = "../shared" }
-
 [lib]
 doctest = false

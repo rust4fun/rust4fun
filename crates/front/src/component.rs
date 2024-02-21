@@ -1,9 +1,13 @@
+mod auth;
+mod chat;
 mod common;
 mod dashboard;
 mod login;
 mod signup;
 
-pub use common::{Footer, NavigationBar};
+pub use auth::AuthGuard;
+pub use chat::ChatComp;
+pub use common::{Footer, NavigationBar, Toast, ToastLevel};
 pub use dashboard::Dashboard;
-pub use login::Login;
-pub use signup::Signup;
+pub use login::LoginSection;
+pub use signup::SignupSection;

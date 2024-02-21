@@ -5,12 +5,12 @@ use crate::DbConnector;
 use chrono::NaiveDateTime;
 use derive_new::new;
 use serde::Serialize;
-use shared::{ChatRoomId, UserId};
+use shared::{SphereId, UserId};
 use std::sync::Arc;
 
 #[derive(Debug, sqlx::FromRow, Serialize)]
-pub struct ChatRoomEntity {
-    pub id: ChatRoomId,
+pub struct SphereEntity {
+    pub id: SphereId,
     pub name: String,
     pub description: Option<String>,
     pub created_by: UserId,
@@ -19,31 +19,32 @@ pub struct ChatRoomEntity {
 }
 
 #[derive(Debug, new)]
-pub struct InputChatRoomEntity {
+pub struct InputSphereEntity {
+    pub id: SphereId,
     pub name: String,
     pub description: Option<String>,
     pub created_by: UserId,
     pub created_at: NaiveDateTime,
 }
 
-pub struct ChatRoomRepository(Arc<DbConnector>);
+pub struct SphereRepository(Arc<DbConnector>);
 
-impl ChatRoomRepository {
+impl SphereRepository {
     pub fn new(db: Arc<DbConnector>) -> Self {
         Self(db)
     }
 
-    pub async fn create(&self, id: ChatRoomId, input: InputChatRoomEntity) -> Result<(), Error> {
+    pub async fn create(&self, input: InputSphereEntity) -> Result<(), Error> {
         let pool = self.0.get_pool();
 
         let res = sqlx::query!(
             r#"
-                INSERT INTO chat_rooms
+                INSERT INTO spheres
                     (id, name, description, created_by, created_at)
                 values
                     ($1::UUID, $2, $3, $4::UUID, $5)
             "#,
-            id.id(),
+            input.id.id(),
             input.name,
             input.description,
             input.created_by.id(),
@@ -60,14 +61,14 @@ impl ChatRoomRepository {
         Ok(())
     }
 
-    pub async fn find_by_id(&self, id: ChatRoomId) -> Result<ChatRoomEntity, Error> {
+    pub async fn find_by_id(&self, id: SphereId) -> Result<SphereEntity, Error> {
         let pool = self.0.get_pool();
 
         let article = sqlx::query_as!(
-            ChatRoomEntity,
+            SphereEntity,
             r#"
                 SELECT *
-                FROM chat_rooms
+                FROM spheres
                 WHERE id = $1::UUID
             "#,
             id.id()
@@ -79,17 +80,14 @@ impl ChatRoomRepository {
         Ok(article)
     }
 
-    pub async fn list_by_created_by(
-        &self,
-        created_by: UserId,
-    ) -> Result<Vec<ChatRoomEntity>, Error> {
+    pub async fn list_by_created_by(&self, created_by: UserId) -> Result<Vec<SphereEntity>, Error> {
         let pool = self.0.get_pool();
 
         let articles = sqlx::query_as!(
-            ChatRoomEntity,
+            SphereEntity,
             r#"
                 SELECT *
-                FROM chat_rooms
+                FROM spheres
                 WHERE created_by = $1::UUID
             "#,
             created_by.id()

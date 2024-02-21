@@ -30,10 +30,10 @@ pub fn navigation_bar() -> Html {
                                 <Link<Route> to={Route::Dashboard} classes={classes!(tab_class)}>{ "Articles" }</Link<Route>>
                             </li>
                             <li>
-                                <Link<Route> to={Route::Chat} classes={classes!(tab_class)}>{ "Study Room" }</Link<Route>>
+                                <Link<Route> to={Route::StudySphere} classes={classes!(tab_class)}>{ "Study Sphere" }</Link<Route>>
                             </li>
                             <li>
-                                <Link<Route> to={Route::Chat} classes={classes!(tab_class)}>{ "Logout" }</Link<Route>>
+                                <Link<Route> to={Route::Logout} classes={classes!(tab_class)}>{ "Logout" }</Link<Route>>
                             </li>
                         } else {
                             <li>

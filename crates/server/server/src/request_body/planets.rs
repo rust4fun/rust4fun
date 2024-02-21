@@ -1,27 +1,23 @@
 use rust_study_shared as shared;
 
 use serde::{Deserialize, Serialize};
-use shared::UserId;
+use shared::SphereId;
 use utoipa::ToSchema;
 
 #[derive(Debug, Deserialize, Serialize, ToSchema)]
-pub struct PostChatMessage {
+pub struct PostPlanetMessage {
     pub content: String,
 }
 
 #[derive(Debug, Deserialize, Serialize, ToSchema)]
-pub struct PostChatRoom {
+pub struct PostPlanet {
+    pub sphere_id: SphereId,
     pub name: String,
     pub description: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize, ToSchema)]
-pub struct PutChatRoom {
+pub struct PutPlanetRoom {
     pub name: String,
     pub description: Option<String>,
-}
-
-#[derive(Debug, Deserialize, Serialize, ToSchema)]
-pub struct PostChatMember {
-    pub user_id: UserId,
 }

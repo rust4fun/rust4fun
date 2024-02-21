@@ -3,27 +3,33 @@ use rust_study_shared as shared;
 
 use crate::error::Error;
 use crate::model::AuthUser;
-use crate::request_body::PostChatMessage;
-use crate::ws::ChatRoom;
+use crate::request_body::PostPlanetMessage;
+use crate::ws::Channel;
 use crate::State;
 use axum::{extract::Path, response::IntoResponse, Extension, Json};
 use chrono::Utc;
-use shared::{ChatMessageId, ChatRoomId};
+use shared::{PlanetId, PlanetMessageId};
 use std::sync::Arc;
 use tokio::sync::broadcast;
 
 pub async fn handler(
-    Path(room_id): Path<ChatRoomId>,
+    Path(planet_id): Path<PlanetId>,
     auth_user: Extension<AuthUser>,
     state: Extension<Arc<State>>,
-    Json(body): Json<PostChatMessage>,
+    Json(body): Json<PostPlanetMessage>,
 ) -> Result<impl IntoResponse, Error> {
     let now = Utc::now().naive_utc();
-    let new_id = ChatMessageId::new_v4();
-    let input = db::InputChatMessageEntity::new(room_id.clone(), body.content, auth_user.id(), now);
-    let repo = db::ChatMessageRepository::new(state.db());
+    let new_id = PlanetMessageId::new_v4();
+    let input = db::InputPlanetMessageEntity::new(
+        new_id.clone(),
+        planet_id.clone(),
+        body.content,
+        auth_user.id(),
+        now,
+    );
+    let repo = db::PlanetMessageRepository::new(state.db());
 
-    repo.create(new_id.clone(), input).await?;
+    repo.create(input).await?;
     let message = repo.find_by_id(new_id).await?;
 
     // websocket で送る
@@ -31,12 +37,12 @@ pub async fn handler(
     let rooms = state.chat_rooms();
     let chat_room = {
         let mut rooms = rooms.lock().await;
-        match rooms.inner().get(&room_id) {
+        match rooms.inner().get(&planet_id) {
             Some(v) => v.clone(),
             None => {
                 let (tx, _) = broadcast::channel(10);
-                let chat_room = ChatRoom::new(tx);
-                rooms.inner_mut().insert(room_id, chat_room.clone());
+                let chat_room = Channel::new(tx);
+                rooms.inner_mut().insert(planet_id, chat_room.clone());
                 chat_room
             }
         }

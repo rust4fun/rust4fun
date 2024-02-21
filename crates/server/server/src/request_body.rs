@@ -1,3 +1,3 @@
-mod chats;
+mod planets;
 
-pub use chats::*;
+pub use planets::*;

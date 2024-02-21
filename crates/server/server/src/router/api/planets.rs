@@ -1,12 +1,12 @@
-pub mod create_chat_room;
 pub mod create_message;
-pub mod delete_chat_rooms;
+pub mod create_planet;
 pub mod delete_message;
-pub mod edit_chat_room;
+pub mod delete_planets;
 pub mod edit_message;
-pub mod get_chat_room_detail;
-pub mod list_chat_rooms;
+pub mod edit_planets;
+pub mod get_planet_detail;
 pub mod list_messages;
+pub mod list_planets;
 
 use axum::{
     routing::{post, put},
@@ -15,15 +15,12 @@ use axum::{
 
 pub fn router() -> Router {
     Router::new()
-        .route(
-            "/",
-            post(create_chat_room::handler).get(list_chat_rooms::handler),
-        )
+        .route("/", post(create_planet::handler).get(list_planets::handler))
         .route(
             "/:chat_room_id",
-            put(edit_chat_room::handler)
-                .get(get_chat_room_detail::handler)
-                .delete(delete_chat_rooms::handler),
+            put(edit_planets::handler)
+                .get(get_planet_detail::handler)
+                .delete(delete_planets::handler),
         )
         .route(
             "/:chat_room_id/messages",

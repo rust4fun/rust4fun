@@ -114,3 +114,6 @@ cargo-shuttle run --port 8080
 ## branch 運用
 
 ## cargo-shuttle について
+
+## chat 
+(Learn)Spheres -> Planets -> talk or voice

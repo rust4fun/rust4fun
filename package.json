@@ -4,6 +4,7 @@
     "build": "NODE_ENV=production tailwindcss -c ./tailwind.config.js -o ./crates/front/tailwind.css --minify"
   },
   "devDependencies": {
+    "@tailwindcss/forms": "^0.5.7",
     "tailwindcss": "^3.4.1"
   },
   "dependencies": {

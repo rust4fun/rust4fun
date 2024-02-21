@@ -6,7 +6,6 @@ use gloo::storage::{LocalStorage, Storage};
 use std::ops::Deref;
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
-use yew_bootstrap::component::{Column, Container, Row};
 use yew_router::hooks::use_navigator;
 use yew_router::navigator::Navigator;
 use yewdux::{use_store, Dispatch};
@@ -35,32 +34,17 @@ pub fn signup_section() -> Html {
 
     // view
     html! {
-        <section class="vh-100" style="background-color: #eee;">
-        <Container class="h-100">
-          <Row class="d-flex justify-content-center align-items-center h-100">
-            <Column lg=12 xl=11>
-              <div class="card text-black" style="border-radius: 25px;">
-                <div class="card-body p-md-5">
-                  <Row class="justify-content-center">
-                    <Column md=10 lg=6 xl=5 class="order-2 order-lg-1">
-                        <p class="text-center h1 fw-bold mb-5 mx-1 mx-md-4 mt-4">{"Sign up"}</p>
-                        <SignupFrom
-                            onclick={onclick}
-                            input_name={handle_name_input.clone()}
-                            input_email={handle_email_input.clone()}
-                            input_password={handle_password_input.clone()}
-                        />
-                    </Column>
-                    <Column md=10 lg=6 xl=7 class="d-flex align-items-center order-1 order-lg-2">
-                      <img src="assets/logo-card.png" class="img-fluid" alt="Logo Card"/>
-                    </Column>
-                  </Row>
-                </div>
-              </div>
-            </Column>
-          </Row>
-        </Container>
-      </section>
+        <div class="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
+            <div class="mx-auto max-w-lg text-center">
+                <h1 class="text-2xl font-bold sm:text-3xl">{"Login"}</h1>
+            </div>
+            <SignupFrom
+                onclick={onclick}
+                input_name={handle_name_input.clone()}
+                input_email={handle_email_input.clone()}
+                input_password={handle_password_input.clone()}
+            />
+        </div>
     }
 }
 
