@@ -3062,6 +3062,7 @@ dependencies = [
 name = "rust-study-db-connector"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "chrono",
  "derive-new",
  "rust-study-shared",

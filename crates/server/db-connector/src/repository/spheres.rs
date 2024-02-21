@@ -99,3 +99,37 @@ impl SphereRepository {
         Ok(articles)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use crate::repository::test_utils::test_db_connector;
+    use crate::repository::users::test_utils::create_user;
+    use sqlx::PgPool;
+    use anyhow::Result;
+    use chrono::Utc;
+
+    #[sqlx::test(migrations = "./migrations")]
+    async fn test_create(pool: PgPool) -> Result<()> {
+        // ready
+        let db = test_db_connector(pool.clone());
+        let user_id = create_user(pool).await?;
+        
+        let repo = SphereRepository::new(Arc::new(db));
+
+        let input = InputSphereEntity::new(
+            SphereId::new_v4(), 
+            "initila".into(), 
+            Some("initila sphere".into()),
+            user_id, 
+            Utc::now().naive_utc()
+        );
+
+        // test
+        let res = repo.create(input).await;
+        assert!(res.is_ok());
+        
+        Ok(())
+    }
+}
