@@ -32,6 +32,7 @@ jobs:
     - name: Build frontend
       run: |
         rustup target add wasm32-unknown-unknown
+        mkdir dist
         AUTH_URL=${{ vars.AUTH_URL }} API_URL=${{ vars.API_URL }} \
           trunk build ./crates/front/index.html --release --dist ${WORKSPACE_PATH}/dist
 
