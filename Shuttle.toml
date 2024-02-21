@@ -1,1 +1,4 @@
-name = "rust4fun"
+# Declare ignored files that should be included in deployment:
+assets = [
+  "dist/*",
+]

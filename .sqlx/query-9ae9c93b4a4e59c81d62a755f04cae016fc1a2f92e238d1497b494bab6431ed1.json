@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                INSERT INTO spheres\n                    (id, name, description, created_by, created_at)\n                values\n                    ($1::UUID, $2, $3, $4::UUID, $5)\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Varchar",
+        "Varchar",
+        "Uuid",
+        "Timestamp"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "9ae9c93b4a4e59c81d62a755f04cae016fc1a2f92e238d1497b494bab6431ed1"
+}
