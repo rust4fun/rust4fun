@@ -12,26 +12,28 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v4
-
-    - name: Add build target
-      run: rustup target add wasm32-unknown-unknown
-
-    - name: Install cargo-make
-      uses: baptiste0928/cargo-install@v2
+      
+    - name: Install npm    
+      uses: actions/setup-node@v3
       with:
-        crate: cargo-make
+        node-version: 18
+        cache: npm
+  
+    - name: Build css  
+      run: | 
+        npm install
+        npm run build
 
+    - name: Install trunk
+      uses: jetli/trunk-action@v0.4.0
+      with:
+        version: 'latest'
+  
     - name: Build frontend
       run: |
-        echo ${{ vars.AUTH_URL }}
-        echo ${{ vars.API_URL }}
-        AUTH_URL=${{ vars.AUTH_URL }} API_URL=${{ vars.API_URL }} cargo make build-yew
-
-    - name: Create and write to Secrets.toml
-      run: |
-        echo 'AUTH_SECRET = "${{ secrets.AUTH_SECRET }}"' >> crates/server/server/Secrets.toml
-        echo 'DB_SECRET = "${{ secrets.DB_SECRET }}"' >> crates/server/server/Secrets.toml
-        echo crates/server/server/Secrets.toml
+        rustup target add wasm32-unknown-unknown
+        AUTH_URL=${{ vars.AUTH_URL }} API_URL=${{ vars.API_URL }} \
+          trunk build ./crates/front/index.html --release --dist ${WORKSPACE_PATH}/dist
 
     - name: Deploy shuttle
       uses: shuttle-hq/deploy-action@main
@@ -39,3 +41,7 @@ jobs:
         deploy-key: ${{ secrets.SHUTTLE_API_KEY }}
         allow-dirty: "true"
         no-test: "true"
+        cargo-shuttle-version: "0.39.0"
+        secrets: |
+          AUTH_SECRET = '${{ secrets.AUTH_SECRET }}'
+          DB_SECRET = '${{ secrets.DB_SECRET }}'
