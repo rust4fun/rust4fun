@@ -5,70 +5,12 @@ info:
   contact:
     name: rust4fun
   license:
-    name: ''
+    name: 'MIT License'
   version: 0.1.0
+
 paths:
-  /api/v1/articles:
+  /me:
     get:
-      tags:
-      - articles
-      operationId: list
-      responses:
-        '200':
-          description: get article records
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Article'
-    post:
-      tags:
-      - articles
-      operationId: create
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/RequestBody'
-        required: true
-      responses:
-        '200':
-          description: create article record
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Article'
-        '401':
-          description: unauhtorization
-  /api/v1/articles/{id}:
-    get:
-      tags:
-      - articles
-      operationId: get_item
-      parameters:
-      - name: id
-        in: path
-        description: article id
-        required: true
-        schema:
-          type: string
-          format: uuid
-      responses:
-        '200':
-          description: get article record
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Article'
-        '401':
-          description: unauhtorization
-        '404':
-          description: not found
-  /api/v1/me:
-    get:
-      tags:
-      - root
       operationId: me
       responses:
         '200':
@@ -78,11 +20,71 @@ paths:
               schema:
                 $ref: '#/components/schemas/User'
         '401':
-          description: unauhtorization
+          $ref: '#/components/responses/Unauthorized'
         '404':
-          description: not found
+          $ref: '#/components/responses/NotFound'
+      tags:
+        - root
+
+  /planets/{planet_id}/messages:
+    get:
+      operationId: get-messages
+      parameters:
+        - $ref: '#/components/parameters/PlanetId'
+        - $ref: '#/components/parameters/PagenationLimitQuery'
+        - $ref: '#/components/parameters/PagenationOffsetQuery'
+      responses:
+        '200':
+          $ref: "#/components/responses/OkGetListPlanetMessage"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      tags:
+        - planets
+
+    post:
+      operationId: post-message
+      parameters:
+        - $ref: '#/components/parameters/PlanetId'
+      requestBody:
+        $ref: '#/components/requestBodies/PostPlanetMessageBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/OkPostPlanetMessage"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+      tags:
+        - planets
+
 components:
+  #-------------------------------
+  # Reusable schemas (data models)
+  #-------------------------------
   schemas:
+    PagenationLimit:
+      type: integer
+      minimum: 1
+      maximum: 50
+      default: 50
+
+    PagenationOffset:
+      type: integer
+
+    UserId:
+      type: string
+      format: uuid
+
+    PlanetId:
+      type: string
+      format: uuid
+
+    PlanetMessageId:
+      type: string
+      format: uuid
+
+    SphereId:
+      type: string
+      format: uuid
+
     Article:
       type: object
       required:
@@ -103,24 +105,155 @@ components:
           nullable: true
         url:
           type: string
-    RequestBody:
-      type: object
-      required:
-      - url
-      properties:
-        url:
-          type: string
+
     User:
       type: object
       properties:
         name:
           type: string
           nullable: true
+
+    PlanetMessage:
+      type: object
+      properties:
+        id:
+          $ref: '#/components/schemas/PlanetMessageId'
+        planet_id:
+          $ref: '#/components/schemas/PlanetId'
+        content:
+          type: string
+        user_id:
+          $ref: '#/components/schemas/UserId'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - id
+        - planet_id
+        - content
+        - user_id
+        - created_at
+        - updated_at
+    
+    ListPlanetMessages:
+      type: array
+      items:
+        $ref: '#/components/schemas/PlanetMessage'
+
+    PostPlanetMessage:
+      type: object
+      properties:
+        content:
+          type: string 
+
+    PostPlanet:
+      type: object
+      properties:
+        sphere_id:
+          $ref: '#/components/schemas/SphereId'
+        name:
+          type: string 
+        description:
+          type: string
+      required:
+        - sphere_id
+        - name
+
+  #-------------------------------
+  # Reusable operation parameters
+  #-------------------------------
+  parameters:
+    PagenationLimitQuery:
+      name: limit
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/PagenationLimit'
+
+    PagenationOffsetQuery:
+      name: offset
+      in: query
+      required: false
+      schema:
+        $ref: '#/components/schemas/PagenationOffset'
+
+    UserId:
+      name: user_id
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/UserId'
+
+    PlanetId:
+      name: planet_id
+      in: path
+      required: true
+      schema:
+        $ref: '#/components/schemas/PlanetId'
+
+  #-------------------------------
+  # Reusable request bodies
+  #-------------------------------
+  requestBodies:
+    PostPlanetMessageBody:
+      description: post planet message
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PostPlanetMessage'
+
+    PostPlanetBody:
+      description: post planet message
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PostPlanet'
+
+  #-------------------------------
+  # Reusable request bodies
+  #-------------------------------
+  responses:
+    OkPostPlanetMessage:
+      description: ok
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PlanetMessage'
+
+    OkGetListPlanetMessage:
+      description: ok
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              items:
+                $ref: '#/components/schemas/ListPlanetMessages'
+              offset:
+                $ref: '#/components/schemas/PagenationOffset'
+              limit:
+                $ref: '#/components/schemas/PagenationLimit'
+              total:
+                type: integer
+
+    NotFound:
+      description: not found
+
+    Unauthorized:
+      description: unauthorized
+
+
   securitySchemes:
     token:
       type: http
       scheme: bearer
       bearerFormat: JWT
+
 security:
 - token: []
 tags:

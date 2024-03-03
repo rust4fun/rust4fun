@@ -1,20 +1,26 @@
 [env]
 WORKSPACE_PATH = { script = ["pwd"] }
 API_SPEC_PATH = "doc/specifications/api_v1.yml"
-ROOT_SPEC_PATH = "doc/specifications/root.yml"
+AUTH_SPEC_PATH = "doc/specifications/auth.yml"
 API_CODEGEN_PATH = "crates/client/src/codegen.rs"
-ROOT_CODEGEN_PATH = "crates/client/src/root_codegen.rs"
+AUTH_CODEGEN_PATH = "crates/client/src/auth_codegen.rs"
 end_point_port = "8080"
 # local 開発用のデータベースURLです。 shuttle が勝手に docker 起動してくれる.
 # port は `cargo shuttle run` した時に決まります。
-DATABASE_URL = "postgres://postgres:postgres@localhost:21735/postgres"
+DATABASE_URL = "postgres://postgres:postgres@localhost:16397/postgres"
+API_URL = "http://localhost:8080/api/v1"
+AUTH_URL = "http://localhost:8080/auth"
 
-[env.local]
-API_URL = "http://localhost:8080"
-AUTH_URL = "http://localhost:8080"
+[env.deploy]
+API_URL = "https://rust4fun.shuttleapp.rs/api/v1"
+AUTH_URL = "https://rust4fun.shuttleapp.rs/auth"
 
 [config]
 default_to_workspace = false
+
+# --init
+[tasks.init-project]
+dependencies = [ "install-wasm", "install-trunk", "install-node-module", "install-shutle" ]
 
 # -- common
 [tasks.format]
@@ -35,29 +41,26 @@ dependencies = [
     "clippy",
 ]
 
+
 # -- tools
 [tasks.tools]
 command = "cargo"
 args = ["run", "--release", "--package", "rust-study-tools", "${@}"]
 
+
 # -- frontend
+[tasks.build-css]
+command = "npm"
+args = ["run", "build"]
+
 [tasks.build-yew]
 command = "trunk"
 args = [ "build", "./crates/front/index.html", "--release", "--dist", "${WORKSPACE_PATH}/dist" ]
-dependencies = [ "install-trunk", "install-wasm" ]
 
 [tasks.watch-yew]
 command = "trunk"
 args = [ "watch", "./crates/front/index.html", "--dist", "${WORKSPACE_PATH}/dist" ]
-# dependencies = [ "install-trunk", "install-wasm" ]
 
-[tasks.install-trunk]
-command = "cargo"
-args = [ "install", "trunk" ]
-
-[tasks.install-wasm]
-command = "cargo"
-args = [ "install", "wasm-bindgen-cli" ]
 
 # -- backend
 [tasks.run]
@@ -69,6 +72,28 @@ command = "sqlx"
 args = [ "${@}" ]
 dependencies = [ "install-sqlx-cli" ]
 
+[tasks.shuttle]
+command = "cargo"
+args = [ "shuttle", "${@}" ]
+
 [tasks.install-sqlx-cli]
 command = "cargo"
 args = [ "install", "sqlx-cli", "--no-default-features", "--features", "native-tls,postgres" ]
+
+
+# -- install
+[tasks.install-shutle]
+command = "cargo"
+args = [ "install", "cargo-shuttle" ]
+
+[tasks.install-node-module]
+command = "npm"
+args = [ "install" ]
+
+[tasks.install-trunk]
+command = "cargo"
+args = [ "install", "trunk" ]
+
+[tasks.install-wasm]
+command = "cargo"
+args = [ "install", "wasm-bindgen-cli" ]

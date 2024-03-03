@@ -11,6 +11,9 @@ pub enum Error {
     AuthError(#[from] auth::Error),
 
     #[error("{0}")]
+    RequiredAuthorization(String),
+
+    #[error("{0}")]
     DbError(#[from] db::Error),
 
     #[error("not found secrets: {0}")]
@@ -28,6 +31,7 @@ impl IntoResponse for Error {
         tracing::error!("{self}");
         let status = match self {
             Error::AuthError(auth::Error::DecodeInvalidJwt(_)) => StatusCode::UNAUTHORIZED,
+            Error::RequiredAuthorization(_) => StatusCode::UNAUTHORIZED,
             Error::DbError(db::Error::AlreadyExsited(_)) => StatusCode::CONFLICT,
             Error::DbError(db::Error::NotFound(_)) => StatusCode::NOT_FOUND,
             Error::NotFound(_) => StatusCode::NOT_FOUND,

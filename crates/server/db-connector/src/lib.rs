@@ -1,11 +1,14 @@
 mod error;
 mod repository;
-mod types;
 
-pub use repository::{ArticleEntity, ArticleRepository, InputArticleEntity};
-pub use repository::{InputUserEntity, InputUserValidateEntity, UserEntity, UserRepository};
-
-pub use types::{ArticleId, UserId};
+pub use repository::articles::{ArticleEntity, ArticleRepository, InputArticleEntity};
+pub use repository::planet_members::{
+    InputPlanetMessageEntity, PlanetMessageEntity, PlanetMessageRepository,
+};
+pub use repository::planets::{InputPlanetEntity, PlanetEntity, PlanetRepository};
+pub use repository::spheres::{InputSphereEntity, SphereEntity, SphereRepository};
+pub use repository::users::{InputUserEntity, InputUserValidateEntity, UserEntity, UserRepository};
+pub use repository::Pagination;
 
 pub use error::Error;
 use sqlx::PgPool;
@@ -29,10 +32,16 @@ impl DbConnector {
     }
 
     pub async fn migration(&self) -> Result<(), Error> {
+        tracing::info!("migration starts!");
+
         sqlx::migrate!("./migrations")
             .run(&self.pool)
             .await
-            .map_err(Error::Migration)
+            .map_err(Error::Migration)?;
+
+        tracing::info!("migration ended!");
+
+        Ok(())
     }
 }
 

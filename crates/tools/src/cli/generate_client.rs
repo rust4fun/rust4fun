@@ -1,8 +1,3 @@
-use rust_study_server as server;
-
-use server::router::ApiDoc;
-use utoipa::OpenApi;
-
 use anyhow::Result;
 use clap::Parser;
 use std::env;
@@ -12,39 +7,33 @@ use std::path::PathBuf;
 
 /// server request client を自動生成する
 #[derive(Debug, Parser)]
-pub struct GenerateClient {
-    #[arg(short, long)]
-    from_file: bool,
-}
+pub struct GenerateClient;
 
 impl GenerateClient {
     pub fn run(&self) -> Result<()> {
-        let spec_paths = vec![env::var("API_SPEC_PATH")?, env::var("ROOT_SPEC_PATH")?];
+        let spec_paths = vec![env::var("API_SPEC_PATH")?, env::var("AUTH_SPEC_PATH")?];
         let codegen_paths = vec![
             env::var("API_CODEGEN_PATH")?,
-            env::var("ROOT_CODEGEN_PATH")?,
+            env::var("AUTH_CODEGEN_PATH")?,
         ];
 
         for (s, c) in spec_paths.into_iter().zip(codegen_paths) {
             println!("{s} {c}");
-            code_generate(self.from_file, &s, &c)?;
+            code_generate(&s, &c)?;
         }
 
         Ok(())
     }
 }
 
-fn code_generate(from_file: bool, spec_path: &str, codegen_path: &str) -> Result<()> {
+fn code_generate(spec_path: &str, codegen_path: &str) -> Result<()> {
     let base = env::var("WORKSPACE_PATH")?;
-    let spec = if from_file {
+    let spec = {
         let mut path = PathBuf::from(&base);
         path.push(spec_path);
 
         let file = File::open(path)?;
         serde_yaml::from_reader(file)?
-    } else {
-        let content = ApiDoc::openapi().to_yaml()?;
-        serde_yaml::from_str(&content)?
     };
 
     let mut setting = progenitor::GenerationSettings::new();

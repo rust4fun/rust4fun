@@ -1,0 +1,18 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "\n                INSERT INTO planet_messages\n                    (id, planet_id, content, user_id, created_at)\n                values\n                    ($1::UUID, $2::UUID, $3, $4::UUID, $5)\n            ",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Uuid",
+        "Uuid",
+        "Text",
+        "Uuid",
+        "Timestamp"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "8e1fadf54a8391dcc790393fc9eef61c93a13747e3761477ac44ccecad9330cb"
+}

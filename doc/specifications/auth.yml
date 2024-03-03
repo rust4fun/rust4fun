@@ -1,0 +1,107 @@
+openapi: 3.0.3
+info:
+  title: rust-study-server
+  description: Rust study web application
+  contact:
+    name: rust4fun
+  license:
+    name: ''
+  version: 0.1.0
+
+paths:
+  /login:
+    post:
+      operationId: login
+      requestBody:
+        $ref: '#/components/requestBodies/PostLoginBody'
+      responses:
+        '200':
+          $ref: '#/components/responses/OkAuthResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /signup:
+    post:
+      operationId: signup
+      requestBody:
+        $ref: '#/components/requestBodies/PostSignupBody'
+      responses:
+        '200':
+          $ref: '#/components/responses/OkAuthResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+components:
+  #-------------------------------
+  # Reusable schemas (data models)
+  #-------------------------------
+  schemas:
+    Auth:
+      type: object
+      properties:
+        token:
+          type: string
+      required:
+        - token
+  
+    Login:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - email
+        - password
+      
+    Signup:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: true
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+  #-------------------------------
+  # Reusable request bodies
+  #-------------------------------
+  requestBodies:
+    PostLoginBody:
+      description: post login
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Login'
+
+    PostSignupBody:
+      description: post login
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Signup'
+
+  #-------------------------------
+  # Reusable request bodies
+  #-------------------------------
+  responses:
+    OkAuthResponse:
+      description: ok
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Auth'
+
+    NotFound:
+      description: not found
+
+tags:
+- name: auth

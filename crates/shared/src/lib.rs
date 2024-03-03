@@ -1,19 +1,9 @@
-use derive_new::new;
-use serde::{Deserialize, Serialize};
-use utoipa::ToSchema;
-use uuid::Uuid;
+mod structs;
+mod types;
 
-// TODO: client の自動生成でできる types とかぶるのでうまく共存させたい
-#[derive(Serialize, Deserialize, Debug, PartialEq, Clone, ToSchema, new)]
-pub struct Article {
-    pub id: Uuid,
-    pub url: String,
-    pub title: Option<String>,
-    pub description: Option<String>,
-    pub image_url: String,
-}
+pub use types::id::{ArticleId, PlanetId, PlanetMessageId, SphereId, UserId};
+pub use types::kind::PlanetKind;
 
-#[derive(Serialize, Deserialize, Debug, PartialEq, Clone, ToSchema, new)]
-pub struct User {
-    pub name: Option<String>,
-}
+pub use structs::article::Article;
+pub use structs::planet::{Planet, PlanetMessage, PostPlanet, PostPlanetMessage, PutPlanetRoom};
+pub use structs::user::User;

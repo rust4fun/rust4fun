@@ -6,7 +6,6 @@ use crate::State;
 use axum::{response::IntoResponse, routing::post, Extension, Json, Router};
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-use utoipa::ToSchema;
 use uuid::Uuid;
 
 pub fn router(state: Arc<State>) -> Router {
@@ -16,30 +15,19 @@ pub fn router(state: Arc<State>) -> Router {
         .layer(Extension(state))
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq, Clone, ToSchema)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct AuthResponse {
     token: String,
 }
 
 // TODO: 暗号化（公開鍵とか使いたい）
 // かつメモリ上は、暗語化されたもので扱いたい
-#[derive(Serialize, Deserialize, Debug, PartialEq, Clone, ToSchema)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct LoginRequestBody {
     pub email: String,
     pub password: String,
 }
 
-#[utoipa::path(
-    post,
-    path = "/login",
-    context_path = "/auth",
-    request_body = LoginRequestBody,
-    responses(
-        (status = 200, description = "login", body = AuthResponse),
-        (status = 404, description = "not found")
-    ),
-    tag = "auth",
-)]
 pub async fn login(
     state: Extension<Arc<State>>,
     Json(body): Json<LoginRequestBody>,
@@ -47,7 +35,10 @@ pub async fn login(
     let repo = db::UserRepository::new(state.db());
 
     let input = db::InputUserValidateEntity::new(body.email, body.password);
-    let user = repo.validate_and_get(input).await?;
+    let user = repo
+        .validate_and_get(input)
+        .await
+        .map_err(|_| Error::NotFound("user".into()))?;
 
     let token = auth::JWT::create(
         "http::/localhost:8080/".to_string(),
@@ -63,24 +54,13 @@ pub async fn login(
 
 // TODO: 暗号化（公開鍵とか使いたい）
 // かつメモリ上は、暗語化されたもので扱いたい
-#[derive(Serialize, Deserialize, Debug, PartialEq, Clone, ToSchema)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct SignupRequestBody {
     pub name: Option<String>,
     pub email: String,
     pub password: String,
 }
 
-#[utoipa::path(
-    post,
-    path = "/signup",
-    context_path = "/auth",
-    request_body = SignupRequestBody,
-    responses(
-        (status = 200, description = "get article records", body = AuthResponse),
-        (status = 404, description = "not found")
-    ),
-    tag = "auth",
-)]
 pub async fn signup(
     state: Extension<Arc<State>>,
     Json(body): Json<SignupRequestBody>,

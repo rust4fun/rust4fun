@@ -1,0 +1,11 @@
+[build]
+target = "./crates/front/index.html"
+dist = "dist"
+
+[watch]
+watch = ["./crates/front/"]
+
+[[hooks]]
+stage = "pre_build"
+command = "npm"
+command_arguments = ["run", "build"]

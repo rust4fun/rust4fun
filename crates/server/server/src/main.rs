@@ -45,6 +45,7 @@ async fn axum(
     let router = Router::new()
         .merge(server::router::static_file::static_roouter())
         .nest("/auth", server::router::auth::router(state.clone()))
+        .nest("/chat", server::ws::router(state.clone()))
         .nest("/api/v1", api)
         .layer(
             CorsLayer::new()

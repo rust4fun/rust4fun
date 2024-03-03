@@ -1,11 +1,13 @@
+use rust_study_shared as shared;
+
 use crate::error::Error;
-use crate::types::{ArticleId, UserId};
 use crate::DbConnector;
 use chrono::NaiveDateTime;
 use derive_new::new;
+use shared::{ArticleId, UserId};
 use std::sync::Arc;
 
-#[derive(sqlx::FromRow)]
+#[derive(Debug, sqlx::FromRow)]
 pub struct ArticleEntity {
     pub id: ArticleId,
     pub url: String,
@@ -17,7 +19,7 @@ pub struct ArticleEntity {
     pub updated_at: NaiveDateTime,
 }
 
-#[derive(new)]
+#[derive(Debug, new)]
 pub struct InputArticleEntity {
     pub url: String,
     pub title: Option<String>,

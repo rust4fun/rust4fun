@@ -6,18 +6,8 @@ edition = "2021"
 [dependencies]
 anyhow= { workspace = true }
 clap = { workspace = true, features = [ "derive" ] }
-futures = { workspace = true }
 prettyplease = { workspace = true }
 progenitor = { workspace = true }
-reqwest = { workspace = true, features = [ "json" ] }
-serde = { workspace = true, features = ["derive"] }
 serde_yaml = { workspace = true }
-serde_json = { workspace = true }
 syn = { workspace = true }
-tokio = { workspace = true }
-uuid = { workspace = true, features = [ "v4", "serde" ] }
-utoipa = { workspace = true, features = [ "yaml", "uuid", "debug" ] }
-
-rust-study-shared = { path = "../shared" }
-rust-study-client = { path = "../client" }
-rust-study-server = { path = "../server/server", features = [ "openapi" ]}
+tokio = { workspace = true, features = ["full"] }

@@ -1,37 +1,77 @@
 use wasm_bindgen::JsCast;
 use web_sys::HtmlInputElement;
 use yew::prelude::*;
-use yew_icons::{Icon, IconId};
+
+// styles
+const LABEL: &str = "block overflow-hidden rounded-md border border-gray-200 px-3 py-2 shadow-sm focus-within:border-blue-600 focus-within:ring-1 focus-within:ring-blue-600";
+const INPUT: &str = "mt-1 w-full border-none p-0 focus:border-transparent focus:outline-none focus:ring-0 sm:text-sm";
 
 #[derive(Properties, PartialEq)]
 pub struct Props {
+    #[prop_or_default]
     pub input_type: String,
-    pub icon_id: IconId,
+    #[prop_or_default]
     pub label: String,
     pub input: Callback<String>,
+    #[prop_or_default]
+    pub is_valid: bool,
+    #[prop_or_default]
+    pub invalid_message: String,
 }
 
-#[function_component(InputField)]
-pub fn input_field(props: &Props) -> Html {
-    let onchnage = Callback::from({
-        let cloned_input = props.input.clone();
-        move |e: Event| {
-            let target = e.target();
-            let element = target.and_then(|t| t.dyn_into::<HtmlInputElement>().ok());
-            let value = element.map(|e| e.value()).unwrap();
-            cloned_input.emit(value);
-        }
-    });
+pub enum Msg {
+    ChangeInput(Event),
+}
 
-    html! {
-        <div class="d-flex flex-row align-items-center mb-4">
-            <Icon icon_id={props.icon_id} class="me-3"/>
-            <div class="form-outline flex-fill mb-0">
-                <input type={props.input_type.clone()}
-                       class="form-control"
-                       onchange={onchnage} />
-                <label class="form-label">{props.label.clone()}</label>
-            </div>
-        </div>
+pub struct InputField;
+
+impl Component for InputField {
+    type Message = Msg;
+    type Properties = Props;
+
+    fn create(_: &Context<Self>) -> Self {
+        Self
+    }
+
+    fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
+        match msg {
+            Msg::ChangeInput(e) => {
+                let input = ctx.props().input.clone();
+
+                let target = e.target();
+                let element = target.and_then(|t| t.dyn_into::<HtmlInputElement>().ok());
+                let value = element.map(|e| e.value()).unwrap();
+                input.emit(value);
+
+                true
+            }
+        }
+    }
+
+    fn view(&self, ctx: &Context<Self>) -> Html {
+        let id = format!("user-{}", ctx.props().input_type);
+
+        html! {
+            <>
+                <div>
+                    <label for={id.clone()} class={LABEL}>
+                        <div class="relative">
+                            <span class="text-xs font-medium text-gray-700"> {ctx.props().label.clone()} </span>
+                            <input
+                                type={ctx.props().input_type.clone()}
+                                id={id}
+                                class={INPUT}
+                                onchange={ctx.link().callback(|e: Event| Msg::ChangeInput(e))}
+                            />
+                            if !ctx.props().is_valid {
+                                <span class="flex items-center font-medium tracking-wide text-red-500 text-xs mt-1 ml-1">
+                                    {ctx.props().invalid_message.clone()}
+                                </span>
+                            }
+                        </div>
+                    </label>
+                </div>
+            </>
+        }
     }
 }
