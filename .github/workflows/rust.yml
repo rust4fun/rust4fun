@@ -40,6 +40,7 @@ jobs:
           POSTGRES_DB: postgres
         ports:
           - 5432:5432
+      
     steps:
       - uses: actions/checkout@v4
       - uses: actions-rs/toolchain@v1
@@ -52,6 +53,7 @@ jobs:
           cargo sqlx migrate run --source ./crates/server/db-connector/migrations
         env:
           DATABASE_URL: postgres://postgres:postgres@localhost:5432/postgres
+
       - uses: actions-rs/cargo@v1
         env:
           API_URL: test
