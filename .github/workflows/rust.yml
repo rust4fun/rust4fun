@@ -19,7 +19,6 @@ jobs:
   clippy:
     name: clippy
     runs-on: ubuntu-latest
-    environment: develop
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
