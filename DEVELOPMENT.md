@@ -58,6 +58,16 @@ cd rust4fun
 cargo make run
 ```
 
+# 開発のやり方
+## frontend
+以下コマンドで、ホットリロードで tailwind css の build と wasm の build が完了する
+
+``` bash
+cargo make watch-yew
+```
+
+# その他
+
 ## branch 運用
 デフォルトブランチ (`dev`) から作業ブランチを作成し、 `dev` への PR を行う。
 
@@ -70,3 +80,4 @@ Study Spheres -> Planets -> talk or voice
 ## Shuttle について
 shuttle の crate や rust の version を更新すると、 deploy 時に restart が求められることがあります。 
 この場合、 organization の admin のユーザーに相談してください。
+
