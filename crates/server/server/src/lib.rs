@@ -6,7 +6,6 @@ pub mod error;
 pub mod middleware;
 pub mod model;
 pub mod query;
-pub mod request_body;
 pub mod response;
 pub mod router;
 pub mod ws;

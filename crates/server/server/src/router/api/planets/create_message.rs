@@ -3,14 +3,14 @@ use rust_study_shared as shared;
 
 use crate::error::Error;
 use crate::model::AuthUser;
-use crate::request_body::PostPlanetMessage;
-use crate::ws::Channel;
 use crate::State;
 use axum::{extract::Path, response::IntoResponse, Extension, Json};
 use chrono::Utc;
-use shared::{PlanetId, PlanetMessageId};
+use shared::{PlanetId, PlanetMessageId, PostPlanetMessage};
 use std::sync::Arc;
-use tokio::sync::broadcast;
+
+#[allow(unused_imports)]
+use shared::PlanetMessage;
 
 pub async fn handler(
     Path(planet_id): Path<PlanetId>,
@@ -34,21 +34,12 @@ pub async fn handler(
 
     // websocket で送る
     // TODO: この処理を共通化したい
-    let rooms = state.chat_rooms();
-    let chat_room = {
+    {
+        tracing::debug!("send: websocket");
+        let rooms = state.chat_rooms();
         let mut rooms = rooms.lock().await;
-        match rooms.inner().get(&planet_id) {
-            Some(v) => v.clone(),
-            None => {
-                let (tx, _) = broadcast::channel(10);
-                let chat_room = Channel::new(tx);
-                rooms.inner_mut().insert(planet_id, chat_room.clone());
-                chat_room
-            }
-        }
+        rooms.send_or_pop(planet_id, message.content.clone())
     };
-
-    chat_room.send(message.content.clone());
 
     Ok(Json(message))
 }

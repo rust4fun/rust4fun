@@ -9,11 +9,5 @@ clap = { workspace = true, features = [ "derive" ] }
 prettyplease = { workspace = true }
 progenitor = { workspace = true }
 serde_yaml = { workspace = true }
-serde_json = { workspace = true }
 syn = { workspace = true }
-tokio = { workspace = true }
-uuid = { workspace = true, features = [ "v4", "serde" ] }
-utoipa = { workspace = true, features = [ "yaml", "uuid", "debug" ] }
-
-rust-study-client = { path = "../client" }
-rust-study-server = { path = "../server/server", features = [ "openapi" ]}
+tokio = { workspace = true, features = ["full"] }

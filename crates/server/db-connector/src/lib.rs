@@ -32,10 +32,16 @@ impl DbConnector {
     }
 
     pub async fn migration(&self) -> Result<(), Error> {
+        tracing::info!("migration starts!");
+
         sqlx::migrate!("./migrations")
             .run(&self.pool)
             .await
-            .map_err(Error::Migration)
+            .map_err(Error::Migration)?;
+
+        tracing::info!("migration ended!");
+
+        Ok(())
     }
 }
 

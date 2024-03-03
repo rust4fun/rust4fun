@@ -8,4 +8,4 @@ derive-new = { workspace = true }
 serde = { workspace = true }
 sqlx = { workspace = true, default-features = false, features = [ "postgres", "macros" ] }
 uuid = { workspace = true, features = [ "v4", "serde" ] }
-utoipa = { workspace = true}
+chrono = { workspace = true, features = [ "serde" ] }

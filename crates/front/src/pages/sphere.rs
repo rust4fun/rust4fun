@@ -1,10 +1,20 @@
-use crate::component::ChatComp;
+use crate::component::{Planet, SideBar};
+use uuid::Uuid;
 use yew::prelude::*;
 
 #[function_component(SpherePage)]
 pub fn sphere_page() -> Html {
+    let planet_id = Uuid::parse_str("db28639e-9045-4a77-99a7-62e08bc615e0").unwrap();
+
     html! {
-        <ChatComp/>
+        <>
+            <div class="flex absolute inset-0">
+                <div class="flex flex-row relative overflow-hidden w-full h-full">
+                    <SideBar/>
+                    <Planet {planet_id} />
+                </div>
+            </div>
+        </>
     }
 }
 

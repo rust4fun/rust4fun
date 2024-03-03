@@ -27,28 +27,45 @@ impl ChatRooms {
         &self.0
     }
 
-    pub fn inner_mut(&mut self) -> &mut HashMap<PlanetId, Channel> {
-        &mut self.0
+    pub fn manage_channel(&mut self, planet_id: PlanetId) -> Channel {
+        let channel = self.0.entry(planet_id).or_default().clone();
+
+        tracing::info!("Active channel {}", self.0.len());
+
+        channel
+    }
+
+    pub fn send_or_pop(&mut self, planet_id: PlanetId, msg: String) {
+        let channel = self.manage_channel(planet_id.clone());
+
+        if let Err(e) = channel.send(msg) {
+            tracing::warn!("No active reciever ({e:?}), and remove channel");
+            self.0.remove(&planet_id);
+        }
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct Channel(broadcast::Sender<String>);
 
 impl Channel {
-    pub fn new(broadcaster: broadcast::Sender<String>) -> Self {
-        Self(broadcaster)
+    pub fn new() -> Self {
+        let (tx, _) = broadcast::channel(10);
+        Self(tx)
     }
 
     pub fn subscribe(&self) -> broadcast::Receiver<String> {
         self.0.subscribe()
     }
 
-    pub fn send(&self, msg: String) {
-        self.0
-            .send(msg)
-            .map_err(|e| tracing::error!("{e:?}"))
-            .unwrap();
+    fn send(&self, msg: String) -> Result<usize, tokio::sync::broadcast::error::SendError<String>> {
+        self.0.send(msg)
+    }
+}
+
+impl Default for Channel {
+    fn default() -> Self {
+        Self::new()
     }
 }
 
@@ -100,34 +117,21 @@ async fn handle_socket(socket: WebSocket, state: Arc<State>, planet_id: PlanetId
     // let connect_msg = serde_json::to_string(&Messages::Connected).unwrap();
     // sender.send(Message::Text(connect_msg)).await.unwrap();
 
-    // chat_room を取得
-    let rooms = state.chat_rooms();
-    let chat_room = {
-        let mut rooms = rooms.lock().await;
-        tracing::debug!("chat room length {}", rooms.0.len());
-        match rooms.0.get(&planet_id) {
-            Some(v) => v.clone(),
-            None => {
-                let (tx, _) = broadcast::channel(10);
-                let chat_room = Channel::new(tx);
-                rooms.0.insert(planet_id, chat_room.clone());
-                chat_room
-            }
-        }
-    };
-    let mut chat_recv = chat_room.subscribe();
-
     let mut recv_task = tokio::spawn(async move {
         while let Some(Ok(msg)) = receiver.next().await {
             if process_message(msg.clone()).is_break() {
                 break;
             }
-
-            if let Message::Text(t) = msg {
-                chat_room.send(t);
-            };
         }
     });
+
+    // chat_room を取得
+    let rooms = state.chat_rooms();
+    let chat_room = {
+        let mut rooms = rooms.lock().await;
+        rooms.manage_channel(planet_id)
+    };
+    let mut chat_recv = chat_room.subscribe();
 
     let mut send_task = tokio::spawn(async move {
         while let Ok(msg) = chat_recv.recv().await {
@@ -166,7 +170,6 @@ fn process_message(msg: Message) -> ControlFlow<(), ()> {
             }
             return ControlFlow::Break(());
         }
-
         Message::Pong(v) => {
             tracing::info!(">>> sent pong with {v:?}");
         }

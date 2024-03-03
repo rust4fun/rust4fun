@@ -1,5 +1,5 @@
-use crate::provider::AuthStore;
 use crate::router::Route;
+use crate::store::AuthStore;
 use yew::prelude::*;
 use yew_router::prelude::*;
 use yewdux::use_store;

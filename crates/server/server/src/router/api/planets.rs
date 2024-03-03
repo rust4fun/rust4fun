@@ -17,17 +17,17 @@ pub fn router() -> Router {
     Router::new()
         .route("/", post(create_planet::handler).get(list_planets::handler))
         .route(
-            "/:chat_room_id",
+            "/:planet_id",
             put(edit_planets::handler)
                 .get(get_planet_detail::handler)
                 .delete(delete_planets::handler),
         )
         .route(
-            "/:chat_room_id/messages",
+            "/:planet_id/messages",
             post(create_message::handler).get(list_messages::handler),
         )
         .route(
-            "/:chat_room_id/messages",
+            "/:planet_id/messages",
             put(edit_message::handler).delete(delete_message::handler),
         )
 }

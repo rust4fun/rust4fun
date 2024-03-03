@@ -1,6 +1,6 @@
 use crate::component::AuthGuard;
 use crate::pages::{
-    DashboardPage, IndexPage, LoginPage, NotFoundPage, SignupPage, SpherePage, UnauthorizedPage,
+    DashboardPage, IndexPage, LoginPage, LooutPage, SignupPage, SpherePage, UnauthorizedPage,
 };
 
 use yew::prelude::*;
@@ -25,10 +25,9 @@ pub enum Route {
 
     #[at("/unauthorized")]
     Unauthorized,
-
-    #[not_found]
-    #[at("/notfound")]
-    NotFound,
+    // #[not_found]
+    // #[at("/notfound")]
+    // NotFound,
 }
 
 pub fn switch(routes: Route) -> Html {
@@ -36,10 +35,10 @@ pub fn switch(routes: Route) -> Html {
         Route::Index => html! { <IndexPage /> },
         Route::Signup => html! { <SignupPage /> },
         Route::Login => html! { <LoginPage /> },
-        Route::Logout => html! { <LoginPage /> },
+        Route::Logout => html! { <LooutPage /> },
 
         Route::Unauthorized => html! { <UnauthorizedPage /> },
-        Route::NotFound => html! { <NotFoundPage /> },
+        // Route::NotFound => html! { <NotFoundPage /> },
 
         // required auth
         Route::Dashboard => html! {

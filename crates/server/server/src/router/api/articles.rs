@@ -12,7 +12,6 @@ use axum::{
 };
 use serde::{Deserialize, Serialize};
 use std::sync::Arc;
-use utoipa::ToSchema;
 use uuid::Uuid;
 use webpage::{Webpage, WebpageOptions};
 
@@ -25,22 +24,11 @@ pub fn router() -> Router {
         .route("/:id", get(get_item))
 }
 
-#[derive(Serialize, Deserialize, Debug, PartialEq, Clone, ToSchema)]
+#[derive(Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct RequestBody {
     pub url: String,
 }
 
-#[utoipa::path(
-    post,
-    path = "/articles",
-    context_path = "/api/v1",
-    request_body = RequestBody,
-    responses(
-        (status = 200, description = "create article record", body = Article),
-        (status = 401, description = "unauhtorization")
-    ),
-    tag = "articles",
-)]
 pub async fn create(
     auth_user: Extension<AuthUser>,
     state: Extension<Arc<State>>,
@@ -74,20 +62,6 @@ pub async fn create(
     Ok(Json(Article::from(article)))
 }
 
-#[utoipa::path(
-    get,
-    path = "/articles/{id}",
-    context_path = "/api/v1",
-    responses(
-        (status = 200, description = "get article record", body = Article),
-        (status = 401, description = "unauhtorization"),
-        (status = 404, description = "not found")
-    ),
-    params(
-        ("id" = Uuid, Path, description = "article id"),
-    ),
-    tag = "articles",
-)]
 pub async fn get_item(
     _auth_user: Extension<AuthUser>,
     state: Extension<Arc<State>>,
@@ -99,15 +73,6 @@ pub async fn get_item(
     Ok(Json(Article::from(article)))
 }
 
-#[utoipa::path(
-    get,
-    path = "/articles",
-    context_path = "/api/v1",
-    responses(
-        (status = 200, description = "get article records", body = Vec<Article>)
-    ),
-    tag = "articles",
-)]
 pub async fn list(
     auth_user: Extension<AuthUser>,
     state: Extension<Arc<State>>,

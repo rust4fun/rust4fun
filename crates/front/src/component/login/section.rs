@@ -1,131 +1,193 @@
-use crate::auth::{AuthClientError, AuthRequester, AuthResponse};
-use crate::component::common::{AuthFrom, InputField, Toast, ToastLevel};
-use crate::provider::AuthStore;
+use crate::component::common::{AuthFrom, FullScreenLoading, InputField, Toast, ToastLevel};
 use crate::router::Route;
+use crate::server::{Auth, AuthClientError, AuthRequester};
+use crate::store::{init_auth, AuthStore};
+use crate::structs::user::{UserEmail, UserLogin, ValidationMap};
 use garde::Validate;
 use gloo::storage::{LocalStorage, Storage};
-use std::ops::Deref;
+use gloo::timers::future::sleep;
+use std::time::Duration;
 use wasm_bindgen_futures::spawn_local;
 use yew::prelude::*;
-use yew_router::hooks::use_navigator;
-use yew_router::navigator::Navigator;
-use yewdux::{use_store, Dispatch};
+use yew_router::scope_ext::RouterScopeExt;
+use yewdux::prelude::*;
 
-#[derive(Debug, Default, PartialEq, Clone, Validate)]
-#[garde(transparent)]
-pub struct UserEmail(#[garde(email)] pub String);
-
-#[derive(Debug, Default, PartialEq, Clone)]
-pub struct UserLogin {
-    pub email: UserEmail,
-    pub password: String,
+pub enum Msg {
+    InputEmail(String),
+    InputPassword(String),
+    ToAuthorization,
+    ShowToast,
+    HideToast,
+    OnLoading,
+    OffLoading,
 }
 
-/// 参照元
-/// <https://mdbootstrap.com/docs/standard/extended/registration/>
-#[function_component(LoginSection)]
-pub fn login_section() -> Html {
-    // definition
-    let user = use_state(UserLogin::default);
-    let is_valid_email = use_state(|| true);
-    let invalid_email_message = use_state(String::default);
-    let is_show_toast = use_state(|| false);
-    let navigator = use_navigator().unwrap();
-    let (_, dispatch) = use_store::<AuthStore>();
+pub struct LoginSection {
+    user: UserLogin,
+    pub invalid_map: ValidationMap,
+    pub auth_dispatch: Dispatch<AuthStore>,
+    pub is_show_toast: bool,
+    pub is_loading: bool,
+}
 
-    // handler
-    let handle_email_input = input_user_callback("email", user.clone());
-    let handle_password_input = input_user_callback("password", user.clone());
-    let onclick = onclick_callback(
-        user.clone(),
-        navigator.clone(),
-        dispatch.clone(),
-        is_valid_email.clone(),
-        invalid_email_message.clone(),
-        is_show_toast.clone(),
-    );
+impl Component for LoginSection {
+    type Message = Msg;
+    type Properties = ();
 
-    // view
-    html! {
-        <>
-            <div class="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
-                <div class="mx-auto max-w-lg text-center">
-                    <h1 class="text-2xl font-bold sm:text-3xl">{"Login"}</h1>
+    fn create(_: &Context<Self>) -> Self {
+        let user = UserLogin::default();
+        let mut invalid_map = ValidationMap::new();
+        invalid_map.insert("email".into(), (true, "".into()));
+        let auth_dispatch = Dispatch::<AuthStore>::global();
+        let is_show_toast = false;
+        let is_loading = false;
+
+        Self {
+            user,
+            invalid_map,
+            auth_dispatch,
+            is_show_toast,
+            is_loading,
+        }
+    }
+
+    fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
+        match msg {
+            Self::Message::InputEmail(email) => {
+                self.user.email = UserEmail(email);
+
+                true
+            }
+
+            Self::Message::InputPassword(pass) => {
+                self.user.password = pass;
+
+                true
+            }
+
+            Self::Message::ShowToast => {
+                self.is_show_toast = true;
+
+                true
+            }
+
+            Self::Message::HideToast => {
+                self.is_show_toast = false;
+
+                true
+            }
+
+            Self::Message::ToAuthorization => {
+                let user = &self.user;
+                let load_callback = ctx.link().callback(|_: ()| Self::Message::OffLoading);
+
+                if user.email.validate(&()).is_err() {
+                    self.invalid_map
+                        .insert("email".into(), (false, "invalid email!".into()));
+                } else {
+                    self.invalid_map.insert("email".into(), (true, "".into()));
+                }
+
+                if self.invalid_map.is_valid() {
+                    let dispatch = self.auth_dispatch.clone();
+
+                    let user = user.clone();
+                    let callback = ctx
+                        .link()
+                        .callback(|_: ()| Self::Message::ShowToast)
+                        .clone();
+                    let load_callback = load_callback.clone();
+                    let navigator = ctx.link().navigator().unwrap();
+                    spawn_local(async move {
+                        let res = login(user).await;
+
+                        match res {
+                            Ok(auth) => {
+                                LocalStorage::set("access_token", auth.token).ok();
+                                init_auth(dispatch).await;
+
+                                sleep(Duration::from_millis(500)).await;
+                                navigator.push(&Route::Dashboard);
+                            }
+                            Err(_) => {
+                                sleep(Duration::from_millis(500)).await;
+                                callback.emit(());
+                            }
+                        }
+
+                        load_callback.emit(());
+                    })
+                } else {
+                    load_callback.emit(());
+                }
+
+                true
+            }
+
+            Self::Message::OnLoading => {
+                self.is_loading = true;
+
+                true
+            }
+
+            Self::Message::OffLoading => {
+                self.is_loading = false;
+
+                true
+            }
+        }
+    }
+
+    fn view(&self, ctx: &Context<Self>) -> Html {
+        // check_auth
+        let store = self.auth_dispatch.get();
+        let navigator = ctx.link().navigator().unwrap();
+
+        if store.is_authorization {
+            navigator.push(&Route::Dashboard);
+        }
+
+        let (is_invalid_email, invalid_email_msg) =
+            self.invalid_map.get("email").unwrap_or((false, "".into()));
+
+        html! {
+            <>
+                <div class="mx-auto max-w-screen-xl px-4 py-16 sm:px-6 lg:px-8">
+                    <div class="mx-auto max-w-lg text-center">
+                        <h1 class="text-2xl font-bold sm:text-3xl">{"Login"}</h1>
+                    </div>
+                    <AuthFrom
+                        onclick={ctx.link().batch_callback(|_| vec![Self::Message::OnLoading, Self::Message::ToAuthorization])}
+                        is_login=true
+                        label="Login"
+                    >
+                        <InputField
+                            input_type="email"
+                            label="Email"
+                            input={ctx.link().callback(Self::Message::InputEmail)}
+                            is_valid={is_invalid_email}
+                            invalid_message={invalid_email_msg.clone()}
+                        />
+                        <InputField
+                            input_type="password"
+                            label="Password"
+                            input={ctx.link().callback(Self::Message::InputPassword)}
+                            is_valid={true}
+                        />
+                    </AuthFrom>
                 </div>
-                <AuthFrom onclick={onclick} is_login=true label="Login">
-                    <InputField
-                        input_type="email"
-                        label="Email"
-                        input={handle_email_input.clone()}
-                        is_valid={is_valid_email.clone()}
-                        invalid_message={invalid_email_message}
-                    />
-                    <InputField
-                        input_type="password"
-                        label="Password"
-                        input={handle_password_input.clone()}
-                    />
-                </AuthFrom>
-            </div>
-            <Toast is_show={is_show_toast} message={"Invalid email or password!"} level={ToastLevel::Error}/>
-        </>
+                if self.is_show_toast {
+                    <Toast hide_toast={ctx.link().callback(|_| Self::Message::HideToast)} message={"Invalid email or password!"} level={ToastLevel::Error}/>
+                }
+                if self.is_loading {
+                    <FullScreenLoading />
+                }
+            </>
+        }
     }
 }
 
-fn input_user_callback(name: &'static str, user: UseStateHandle<UserLogin>) -> Callback<String> {
-    Callback::from(move |value| {
-        let mut data = user.deref().clone();
-        match name {
-            "email" => data.email = UserEmail(value),
-            "password" => data.password = value,
-            _ => (),
-        }
-        user.set(data);
-    })
-}
-
-fn onclick_callback(
-    user: UseStateHandle<UserLogin>,
-    navigator: Navigator,
-    dispatch: Dispatch<AuthStore>,
-    is_valid_email: UseStateHandle<bool>,
-    invalid_em_msg: UseStateHandle<String>,
-    is_show_toast: UseStateHandle<bool>,
-) -> Callback<MouseEvent> {
-    Callback::from({
-        move |_: MouseEvent| {
-            if user.email.validate(&()).is_err() {
-                is_valid_email.set(false);
-                invalid_em_msg.set("invalid email!".into())
-            } else {
-                is_valid_email.set(true);
-            }
-
-            if *is_valid_email {
-                let cloned_state = user.clone();
-                let cloned_navigator = navigator.clone();
-                let cloned_dispatch = dispatch.clone();
-                let is_show_toast = is_show_toast.clone();
-                spawn_local(async move {
-                    let res = login((*cloned_state).clone()).await;
-
-                    match res {
-                        Ok(auth) => {
-                            LocalStorage::set("access_token", auth.token).ok();
-                            cloned_dispatch.reduce_mut(|state| state.is_authorization = true);
-                            cloned_navigator.push(&Route::Dashboard)
-                        }
-                        Err(_) => {
-                            is_show_toast.set(true);
-                        }
-                    }
-                })
-            }
-        }
-    })
-}
-
-async fn login(user: UserLogin) -> Result<AuthResponse, AuthClientError> {
+async fn login(user: UserLogin) -> Result<Auth, AuthClientError> {
     let requester = AuthRequester::new();
     requester.login(user.email.0, user.password).await
 }

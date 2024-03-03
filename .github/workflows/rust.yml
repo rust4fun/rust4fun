@@ -14,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - run: cargo fmt
+      - run: cargo fmt --check
 
   clippy:
     name: clippy
@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - run: cargo clippy
+      - run: cargo clippy --all-targets --all-features
         env:
           API_URL: test
           AUTH_URL: test

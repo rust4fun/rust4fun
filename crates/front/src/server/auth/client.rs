@@ -1,8 +1,8 @@
 use rust_study_client as client;
 
 use super::error::Error;
-pub use client::auth_types::{AuthResponse, LoginRequestBody, SignupRequestBody};
-pub use client::{AuthClient, AuthResponseValue, ClientAuthExt};
+pub use client::auth_types::{Auth, Login, Signup};
+pub use client::{AuthClient, AuthResponseValue};
 
 pub struct AuthRequester {
     client: AuthClient,
@@ -17,8 +17,8 @@ impl AuthRequester {
         }
     }
 
-    pub async fn login(&self, email: String, password: String) -> Result<AuthResponse, Error> {
-        let body = LoginRequestBody::builder().email(email).password(password);
+    pub async fn login(&self, email: String, password: String) -> Result<Auth, Error> {
+        let body = Login::builder().email(email).password(password);
         let response = self.client.login().body(body).send().await?;
 
         check_response(response)
@@ -29,18 +29,21 @@ impl AuthRequester {
         name: String,
         email: String,
         password: String,
-    ) -> Result<AuthResponse, Error> {
-        let body = SignupRequestBody::builder()
-            .name(name)
-            .email(email)
-            .password(password);
+    ) -> Result<Auth, Error> {
+        let body = Signup::builder().name(name).email(email).password(password);
         let response = self.client.signup().body(body).send().await?;
 
         check_response(response)
     }
 }
 
-fn check_response(response: AuthResponseValue<AuthResponse>) -> Result<AuthResponse, Error> {
+impl Default for AuthRequester {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+fn check_response(response: AuthResponseValue<Auth>) -> Result<Auth, Error> {
     match response.status().as_u16() {
         200 => Ok(response.into_inner()),
         400 => Err(Error::BadRequest("wrong setting!".into())),

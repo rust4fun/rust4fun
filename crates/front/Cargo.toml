@@ -19,9 +19,10 @@ wasm-bindgen = { workspace = true }
 wasm-logger = { workspace = true }
 yew = { workspace = true, features = ["csr"] }
 yew-router = { workspace = true }
-yewdux =  { workspace = true }
+yewdux =  { workspace = true, features = ['doctests'] }
 futures = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+uuid = { workspace = true }
 
 rust-study-client = { path = "../client" }

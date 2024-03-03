@@ -3,12 +3,10 @@ use rust_study_shared as shared;
 
 use crate::error::Error;
 use crate::model::AuthUser;
-use crate::request_body::PostPlanet;
 use crate::State;
 use axum::{response::IntoResponse, Extension, Json};
 use chrono::Utc;
-use shared::PlanetId;
-use shared::PlanetKind;
+use shared::{PlanetId, PlanetKind, PostPlanet};
 use std::sync::Arc;
 
 pub async fn handler(

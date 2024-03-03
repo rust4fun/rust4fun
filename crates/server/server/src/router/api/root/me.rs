@@ -7,17 +7,6 @@ use axum::{response::IntoResponse, Extension, Json};
 
 use std::sync::Arc;
 
-#[utoipa::path(
-    get,
-    path = "/me",
-    context_path = "/api/v1",
-    responses(
-        (status = 200, description = "get me", body = User),
-        (status = 401, description = "unauhtorization"),
-        (status = 404, description = "not found")
-    ),
-    tag = "root",
-)]
 pub async fn handler(
     auth_user: Extension<AuthUser>,
     state: Extension<Arc<State>>,

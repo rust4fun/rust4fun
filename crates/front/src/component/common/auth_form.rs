@@ -2,6 +2,10 @@ use crate::router::Route;
 use yew::prelude::*;
 use yew_router::prelude::*;
 
+// styles
+const SUBMIT_BUTTON: &str =
+    "inline-block rounded-lg bg-blue-500 px-5 py-3 text-sm font-medium text-white";
+
 #[derive(Properties, PartialEq)]
 pub struct Props {
     pub children: Children,
@@ -10,24 +14,49 @@ pub struct Props {
     pub label: String,
 }
 
-/// 参照元
-/// <https://mdbootstrap.com/docs/standard/extended/registration/>
-#[function_component(AuthFrom)]
-pub fn auth_from(props: &Props) -> Html {
-    let button_class =
-        "inline-block rounded-lg bg-blue-500 px-5 py-3 text-sm font-medium text-white";
+pub enum Msg {
+    Submit(MouseEvent),
+}
 
-    html! {
-        <form class="max-w-sm mx-auto my-5">
-            { for props.children.iter() }
-            <div class="flex items-center justify-between">
-                if props.is_login {
-                    <p class="text-sm text-gray-500">{"No account? "}
-                        <Link<Route> to={Route::Signup} classes={classes!("underline")}>{ "Signup" }</Link<Route>>
-                    </p>
-                }
-                <button type="button" class={button_class} onclick={props.onclick.clone()}>{props.label.clone()}</button>
-            </div>
-        </form>
+pub struct AuthFrom;
+
+impl Component for AuthFrom {
+    type Message = Msg;
+    type Properties = Props;
+
+    fn create(_: &Context<Self>) -> Self {
+        Self
+    }
+
+    fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
+        match msg {
+            Self::Message::Submit(e) => {
+                let onclick = ctx.props().onclick.clone();
+                onclick.emit(e);
+
+                true
+            }
+        }
+    }
+
+    fn view(&self, ctx: &Context<Self>) -> Html {
+        html! {
+            <form class="max-w-sm mx-auto my-5">
+                { for ctx.props().children.iter() }
+                <div class="flex items-center justify-between">
+                    if ctx.props().is_login {
+                        <p class="text-sm text-gray-500">{"No account? "}
+                            <Link<Route> to={Route::Signup} classes={classes!("underline")}>{ "Signup" }</Link<Route>>
+                        </p>
+                    }
+                    <button
+                        type="button"
+                        class={SUBMIT_BUTTON}
+                        onclick={ctx.link().callback(Self::Message::Submit)}
+                    >{ctx.props().label.clone()}
+                    </button>
+                </div>
+            </form>
+        }
     }
 }

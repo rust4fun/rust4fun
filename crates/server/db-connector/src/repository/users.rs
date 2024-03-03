@@ -116,16 +116,15 @@ pub mod test_utils {
     use super::*;
 
     use crate::repository::test_utils::TEST_SECRET;
-    use sqlx::PgPool;
     use anyhow::Result;
+    use sqlx::PgPool;
 
     pub async fn create_user(pool: PgPool) -> Result<UserId> {
-
         let id = UserId::new_v4();
         let name = "dummy_user";
         let email = "dummy@example.com";
         let password = "dummy_password";
-  
+
         let _ = sqlx::query!(
             r#"
                 INSERT INTO users
@@ -142,7 +141,7 @@ pub mod test_utils {
         )
         .execute(&pool)
         .await?;
-        
+
         Ok(id)
     }
 }

@@ -1,8 +1,9 @@
-use crate::provider::ChatStore;
+use crate::store::ChatStore;
 use chrono::NaiveDateTime;
 use futures::{channel::mpsc::Sender, SinkExt, StreamExt};
-use gloo::net::websocket::{futures::WebSocket, Message, State};
+use gloo::net::websocket::{futures::WebSocket, Message};
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 use wasm_bindgen_futures::spawn_local;
 use yewdux::prelude::*;
 
@@ -29,9 +30,8 @@ pub struct WebsocketService {
 }
 
 impl WebsocketService {
-    pub fn new(dispatch: Dispatch<ChatStore>) -> Self {
-        let ws = WebSocket::open("ws://127.0.0.1:8080/chat/db28639e-9045-4a77-99a7-62e08bc615e0")
-            .unwrap();
+    pub fn new_open(planet_id: Uuid, dispatch: Dispatch<ChatStore>) -> Self {
+        let ws = WebSocket::open(&format!("ws://127.0.0.1:8080/chat/{planet_id}")).unwrap();
 
         let (mut write, mut read) = ws.split();
 
@@ -72,24 +72,5 @@ impl WebsocketService {
         });
 
         Self { tx }
-    }
-}
-
-use yew::prelude::*;
-
-#[derive(Clone)]
-pub struct UseWebSocketHandle {
-    pub state: UseStateHandle<State>,
-    pub recv_message: UseStateHandle<Option<ChatMessage>>,
-    pub sender: Option<Sender<String>>,
-}
-
-impl UseWebSocketHandle {
-    pub async fn send(&self, meg: Messages) {
-        let s = serde_json::to_string(&meg).unwrap();
-        let sender_clone = self.sender.clone();
-        if let Some(mut tx) = sender_clone {
-            let _ = tx.send(s).await;
-        }
     }
 }
